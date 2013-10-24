@@ -1,0 +1,158 @@
+#!/bin/bash
+
+##################################################################
+#  This file is part of KernelGenius.
+#
+#  Copyright (C) 2013 STMicroelectronics
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 3 of the License, or (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  Lesser General Public License for more details.
+# 
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this program; if not, write to the Free
+#  Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA 02110-1301 USA.
+#
+#  Authors: Thierry Lepley
+##################################################################
+
+##################################################################
+# KernelGenius installation script
+##################################################################
+
+checkEnv() {
+    local name=$1
+    local value
+    eval value=\$$1
+    
+    if [ -z "$value" ]; then
+        echo "$name is not set"
+        exit 1
+    fi
+}
+
+checkEnvPath() {
+    local name=$1
+    local value
+    eval value=\$$1
+    checkEnv $name
+    if [ ! -e "$value" ]; then
+        echo "$name=$value is not a valid path"
+        exit 1
+    fi
+}
+
+copyFile() {
+    local source=$1
+    local dest=$2
+    if [ -z "$source" ]; then
+        echo "Copying $source to $dest: unspecified source"
+        exit 1
+    fi
+    if [ -z "$dest" ]; then
+        echo "Copying $source to $dest: unspecified destination"
+        exit 1
+    fi
+    if [ -z "$3" ]; then
+        cp $source $dest
+    else
+	if [ -z "$4" ]; then
+            cp -r $source $dest
+	    find $dest -name ".svn" | xargs rm -rf
+	else
+            cp -r $source/* $dest
+	    find $dest -name ".svn" | xargs rm -rf
+	fi
+    fi
+    if [ $? != 0 ] ; then
+        echo "Copying $source to $dest: failed"
+        exit 1
+    fi
+}
+
+makeDir() {
+    if [ -z "$1" ]; then
+        echo "Making directory: unspecified directory"
+        exit 1
+    fi
+    mkdir -p $1
+    if [ $? != 0 ] ; then
+        echo "Making directory $1: failed"
+        exit 1
+    fi
+}
+
+
+copyDir() {
+    copyFile $1 $2 1
+}
+
+copyDirContent() {
+    copyFile $1 $2 1 1
+}
+
+
+#-------------------------------------
+#------------- KGENIUS ---------------
+#-------------------------------------
+
+BUILD_DIR="install"
+KGENIUS_PACKAGE_NAME="KernelGenius"
+KGENIUS_INSTALL_DIR="$BUILD_DIR/$KGENIUS_PACKAGE_NAME"
+KGENIUS_CLONE_DIR="$BUILD_DIR"/clone
+KGENIUS_TAR="$KGENIUS_PACKAGE_NAME".tgz
+
+echo "---> installing the KernelGenius package"
+echo "     install dir : $KGENIUS_INSTALL_DIR"
+
+# Reset the install dir
+rm -rf "$KGENIUS_CLONE_DIR"
+rm -rf "$KGENIUS_INSTALL_DIR"
+mkdir -p "$KGENIUS_INSTALL_DIR"
+
+# jar directory
+mkdir "$KGENIUS_INSTALL_DIR"/jar
+cp jar/*.jar "$KGENIUS_INSTALL_DIR"/jar/
+
+git clone . "$KGENIUS_CLONE_DIR"
+
+# Examples
+cp -R "$KGENIUS_CLONE_DIR"/examples "$KGENIUS_INSTALL_DIR"/
+rm -f "$KGENIUS_INSTALL_DIR"/examples/*.xml
+# target configuration files
+cp -R "$KGENIUS_CLONE_DIR"/targets "$KGENIUS_INSTALL_DIR"/
+# docs
+cp -R "$KGENIUS_CLONE_DIR"/doc "$KGENIUS_INSTALL_DIR"/
+# bin directory
+cp -R "$KGENIUS_CLONE_DIR"/bin "$KGENIUS_INSTALL_DIR"/
+# bin directory
+cp "$KGENIUS_CLONE_DIR"/lib/*.jar "$KGENIUS_INSTALL_DIR"/jar/
+# licenses
+cp "$KGENIUS_CLONE_DIR"/LICENSE.txt "$KGENIUS_INSTALL_DIR"/
+cp -R "$KGENIUS_CLONE_DIR"/licenses "$KGENIUS_INSTALL_DIR"/
+# setup
+cp "$KGENIUS_CLONE_DIR"/setup.sh "$KGENIUS_INSTALL_DIR"/
+# Other files
+cp "$KGENIUS_CLONE_DIR"/script/README_USER.txt "$KGENIUS_INSTALL_DIR"/README.txt
+cp "$KGENIUS_CLONE_DIR"/script/CHANGELOG.txt "$KGENIUS_INSTALL_DIR"/
+
+# Create the tarfile
+echo "---> create the KGENIUS tarfile"
+echo "     name : $KGENIUS_TAR"
+pushd $BUILD_DIR > /dev/null
+tar zcf $KGENIUS_TAR $KGENIUS_PACKAGE_NAME
+popd > /dev/null
+echo
+
+
+# remove the clone directory
+echo "---> cleaning temp dir"
+rm -rf "$KGENIUS_CLONE_DIR"
+

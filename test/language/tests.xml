@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="language constructs">
+
+  <test name="struct)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -f struct.mk clean run</command>
+    </config>
+  </test>
+
+  <test name="enum">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -f enum.mk clean run</command>
+    </config>
+  </test>
+
+  <test name="enum">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -f typedef.mk clean run</command>
+    </config>
+  </test>
+
+</testset>

@@ -1,0 +1,73 @@
+${
+#define VL_EPSILON_F 1.19209290E-07F
+#define VL_PI 3.141592653589793f
+
+float vl_fast_resqrt_f (float x) {
+  /* 32-bit version */
+  union {
+    float x ;
+    int  i ;
+  } u ;
+
+  float xhalf = (float) 0.5 * x ;
+
+  /* convert floating point value in RAW integer */
+  u.x = x ;
+
+  /* gives initial guess y0 */
+  u.i = 0x5f3759df - (u.i >> 1);
+  /*u.i = 0xdf59375f - (u.i>>1);*/
+
+  /* two Newton steps */
+  u.x = u.x * ( (float) 1.5f  - xhalf*u.x*u.x) ;
+  u.x = u.x * ( (float) 1.5f  - xhalf*u.x*u.x) ;
+  return u.x ;
+}
+
+float vl_fast_sqrt_f (float x) {
+  return (x < 1e-8f) ? 0 : x * vl_fast_resqrt_f (x) ;
+}
+
+float vl_mod_2pi_f (float x) {
+  while (x > (float)(2 * VL_PI)) x -= (float) (2 * VL_PI) ;
+  while (x < 0.0F) x += (float) (2 * VL_PI);
+  return x ;
+}
+
+float vl_fast_atan2_f (float y, float x) {
+  float angle, r ;
+  float c3 = 0.1821F ;
+  float c1 = 0.9675F ;
+  float abs_y    = fabs(y) + VL_EPSILON_F ;
+
+  if (x >= 0) {
+    r = (x - abs_y) / (x + abs_y) ;
+    angle = (float) (VL_PI / 4) ;
+  } else {
+    r = (x + abs_y) / (abs_y - x) ;
+    angle = (float) (3 * VL_PI / 4) ;
+  }
+  angle += (c3*r*r - c1) * r ;
+  return (y < 0) ? - angle : angle ;
+}	
+}$
+
+
+kernel Gradient3x3(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {
+   	  	
+	Filter<float> grad(in) {
+		.border = "2*$[0]-$[1]";
+		.indexing = c;
+		.stride_out = {2};
+		.function = ${
+		   float gx=0.5f*($in[0][1]-$in[0][-1]);
+		   float gy=0.5f*($in[1][0]-$in[-1][0]);
+		   @grad[0][0]=vl_fast_sqrt_f(gx*gx+gy*gy);
+		   @grad[0][1]= vl_mod_2pi_f (vl_fast_atan2_f(gy, gx)+2*VL_PI);
+		 }$;
+	};
+	
+	return grad;
+}
+

@@ -1,0 +1,17 @@
+#ifndef BORDER
+#define BORDER duplicate
+#endif
+  
+kernel Downsampling(int width=[1:1920], int height=[1:1080],
+		    float in[height][width]) {
+
+    Filter<float> down(in) {
+      .border = BORDER;
+      .stride_in = {2,2};
+      .function = ${ 
+	 @down[0][0]=$in[0][0];
+       }$;
+    };
+ 
+    return down;
+}

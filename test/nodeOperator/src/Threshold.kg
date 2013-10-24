@@ -1,0 +1,23 @@
+kernel Threshold(int width=[1:1920], int height=[1:1080],
+		   float in[height][width],
+		   float t) {
+    
+    Operator<int> thresh(in,t) {
+      .function = ${  @thresh= $in>=t?1:0; }$;
+    };
+    
+    return thresh;
+  }
+  
+  // Invert node parameters
+  kernel Threshold2(int width=[1:1920], int height=[1:1080],
+		    float t,
+		    float in[height][width]) {
+    
+    Operator<int> thresh(t,in) {
+      .function = ${ @thresh= ($in>=t)?1:0; }$;
+    };
+    
+    return thresh;
+}
+  

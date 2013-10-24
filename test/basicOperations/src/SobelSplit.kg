@@ -1,0 +1,32 @@
+#ifndef BORDER
+#define BORDER zero
+#endif
+
+kernel Sobel3x3_Gx(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {   	
+	Convolution<float> gx(in) {
+		.border = BORDER;
+		.coefficients= (float[-1:1][-1:1]) { {-1., 0., 1.},
+					   	     {-2., 0., 2.},
+						     {-1., 0., 1.} };
+	};
+	return gx;
+}
+
+kernel Sobel3x3_Gy(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {   	
+	Convolution<float> gy(in) {
+		.border = BORDER;
+		.coefficients= (float[-1:1][-1:1]) { {-1., -2., -1.},
+						     { 0.,  0.,  0.},
+						     { 1.,  2. , 1.} } ;
+	};
+	return gy;
+}
+
+kernel Sobel3x3_Merge(int width=[1:1920], int height=[1:1080],
+		  float gx[height][width], float gy[height][width]) {   	
+	EuclideanNorm<float> merge(gx , gy);
+	return merge;
+}
+	

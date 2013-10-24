@@ -1,0 +1,26 @@
+#ifndef BORDER_MODE
+#define BORDER_MODE duplicate
+#endif
+  
+kernel Upsampling(int width=[1:1920], int height=[1:1080],
+		    float in[height][width]) {
+    Filter<float> gx(in) {
+      .border = BORDER_MODE;
+      .stride_out = {2};
+      .function = ${ 
+	 @gx[0][0]=$in[0][0];
+	 @gx[0][1]=0.5f*($in[0][0]+$in[0][1]);
+       }$;
+    };
+    
+    Filter<float> gy(gx) {
+      .border = BORDER_MODE;
+      .stride_out = {1,2};
+      .function = ${ 
+	 @gy[0][0]=$gx[0][0];
+	 @gy[1][0]=0.5f*($gx[0][0]+$gx[1][0]);
+       }$;
+    };
+    
+    return gy;
+}

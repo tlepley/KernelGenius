@@ -1,0 +1,18 @@
+The copyright holder for KernelGenius is STMicroelectronics.
+
+* This tool was first developed developed by:
+
+Thierry LEPLEY <thierry.lepley@st.com>, <ikolomus@yahoo.com>
+	Original author, maintainer.
+
+	
+* KernelGenius includes the ANTLR 3.4  parser generator, as a jar library
+(see license/ANTLR3_license.txt)
+  lib/antlr-3.4-complete.jar
+
+* KernelGenius reuses 3 files from the ANTLR v2 C parser example developed
+by Monty Zukoski (see license/NONINC_license.txt)
+  src/parser/PreprocessorInfoChannel.java
+  src/parser/TNode.java
+  src/parser/LineObject.java
+  

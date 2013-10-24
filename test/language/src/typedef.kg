@@ -1,0 +1,15 @@
+#include "typedef.h"
+
+kernel test(int width=[1:1920], int height=[1:1080],
+       	    Ta in[width][height]) {
+   	  	
+  Operator<struct B> out(in) {
+	.function = ${
+		@out.a.a = $in.a+$in.b;
+		@out.a.b = E1+2;
+	 }$;
+  };
+  return out;
+}
+
+

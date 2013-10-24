@@ -1,0 +1,59 @@
+#!/usr/bin/env expect
+
+##################################################################
+#  This file is part of KernelGenius.
+#
+#  Copyright (C) 2013 STMicroelectronics
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 3 of the License, or (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  Lesser General Public License for more details.
+# 
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this program; if not, write to the Free
+#  Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA 02110-1301 USA.
+##################################################################
+
+set pid -1
+
+exit -onexit {
+    if {$pid != -1} {
+        system "kill $pid"
+    }
+}
+
+puts "Launching test from check file"
+eval spawn [lrange $argv 1 end]
+set pid [exp_pid -i $spawn_id]
+
+set timeout [lindex $argv 0]
+puts "Timeout is: $timeout s"
+
+expect {
+      "completed OK" {}
+      timeout {puts "EXP: Timeout reached before end of test"; exit 1}
+      eof {puts "EXP: Test not terminated correctly"; exit 1}
+}
+
+expect {
+      timeout {puts "EXP: Timeout reached before end of test"; exit 1}
+      eof {exit 0}
+}
+
+catch {close -i \$spawn_id}
+puts "EXP: Closing test"  
+set pid -1
+set retval [lindex [wait] 3] 
+if {$retval != 0} {
+    puts "EXP: The test returned an error"
+} else {
+    puts "EXP: The test executed correctly"
+}
+exit $retval

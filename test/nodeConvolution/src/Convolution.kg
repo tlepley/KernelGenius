@@ -1,0 +1,22 @@
+#ifndef  COEF_FILE
+# define COEF_FILE "coefficients.h"
+#endif
+#include COEF_FILE
+
+#ifndef BORDER
+# define BORDER undef
+#endif
+
+kernel ConvolutionNxM(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {
+   	  	
+	Convolution<float> conv(in) {
+		.border = BORDER;
+		.coefficients = (float [DIM1_MIN:DIM1_MAX]
+			      	       [DIM0_MIN:DIM0_MAX])
+				{ COEFS };
+	};
+	
+	return conv;
+}
+

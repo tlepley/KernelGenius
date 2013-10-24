@@ -1,0 +1,29 @@
+#ifndef  COEF_FILE
+# define COEF_FILE "coefficientsMulDiv.h"
+#endif
+#include COEF_FILE
+
+#ifndef MUL
+# define MUL 1.0
+#endif
+#ifndef DIV
+# define DIV 1.0
+#endif
+
+#ifndef BORDER
+# define BORDER undef
+#endif
+
+kernel ConvolutionNxM(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {
+  Convolution<float> conv(in) {
+    .border = BORDER;
+    .coefficients = (float [DIM1_MIN:DIM1_MAX]
+		           [DIM0_MIN:DIM0_MAX])
+                     { COEFS };
+    .multiplier=MUL;
+    .divider=DIV;
+  };
+  return conv;
+}
+

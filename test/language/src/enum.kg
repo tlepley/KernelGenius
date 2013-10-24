@@ -1,0 +1,12 @@
+#include "enum.h"
+
+kernel test(int width=[1:1920], int height=[1:1080], enum E e,
+       	    enum E2 in[width][height]) {
+   	  	
+  Operator<enum E2> out(in) {
+	.function = ${
+		@out = $in+A-Z;
+	 }$;
+  };
+  return out;
+}

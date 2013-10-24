@@ -1,0 +1,138 @@
+#!/bin/sh
+
+##################################################################
+#  This file is part of KernelGenius.
+#
+#  Copyright (C) 2013 STMicroelectronics
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 3 of the License, or (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  Lesser General Public License for more details.
+# 
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this program; if not, write to the Free
+#  Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA 02110-1301 USA.
+##################################################################
+
+LOG_DIR=`pwd`/target
+LOG=$LOG_DIR/runtest.log
+
+# Create temporary directory for log files
+mkdir -p $LOG_DIR
+retval=$?
+if [ "$retval" != 0 ]; then
+    echo "Unable to create temporary directory: $LOG_DIR"
+    exit $retval
+fi
+
+report=`echo $@ | grep gen-report`
+if [ ! -z "$report" ]; then
+    dumpXml=" -dump-xml"
+fi
+
+# Determine the path of test-tools from the script path
+if [ -z "$TEST_TOOLS_HOME" ] ; then
+  ## resolve links - $0 may be a link to maven's home
+  PRG="$0"
+
+  # need this for relative symlinks
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
+    else
+      PRG="`dirname "$PRG"`/$link"
+    fi
+  done
+
+  saveddir=`pwd`
+
+  TEST_TOOLS_HOME=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  TEST_TOOLS_HOME=`cd "$TEST_TOOLS_HOME" && pwd`
+
+  cd "$saveddir"
+  # echo Using cecilia at $TEST_TOOLS_HOME
+fi
+
+## Preparation of the java command to be executed
+if [ -n "$JAVA_HOME"  ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+      # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+else
+    JAVACMD=java
+fi
+
+## Print error if the java command is not ready
+if [ ! -x "$JAVACMD" ] ; then
+  echo "Error: JAVA_HOME is not defined correctly."
+  echo "  We cannot execute $JAVACMD"
+  exit 1
+fi
+
+# Append all JARs to the classpath
+JAR_SET_DIR=$TEST_TOOLS_HOME/lib
+JAR_SET=`ls $JAR_SET_DIR`
+for i in $JAR_SET; do
+  if [ -z "$CLASSPATH" ] ; then
+      CLASSPATH="$JAR_SET_DIR/$i"
+  else
+      CLASSPATH="$CLASSPATH:$JAR_SET_DIR/$i"
+  fi
+done
+
+ 
+## Launcher class name
+LAUNCHER=test.Runtest
+
+# Output for XML reports
+OUTPUT=`pwd`/target/report
+mkdir -p $OUTPUT &> $LOG
+retval=$?
+if [ "$retval" != 0 ]; then
+    more $LOG
+    echo "Unable to create temporary directory: $OUTPUT"
+    exit $retval
+fi
+
+export PATH=$TEST_TOOLS_HOME/bin:$PATH
+
+# Launch the JAVA command
+"$JAVACMD" \
+  -classpath "$CLASSPATH" \
+  $LAUNCHER \
+  -output=$OUTPUT \
+  "$@" $dumpXml
+retval=$?
+
+if [ $retval != 0 ]; then
+    exit $retval
+fi
+
+
+# Generate report
+#if [ ! -z "$report" ]; then
+#    echo
+#    echo "Generating HTML report to $OUTPUT/junit-noframes.html"
+#    $TEST_TOOLS_HOME/bin/genReport --targetDir=$OUTPUT --libDir=$TEST_TOOLS_HOME/lib &> $LOG
+#    retval=$?
+#    
+#    if [ "$retval" != 0 ]; then
+#        more $LOG
+#        echo "Unable to generate HTML report"
+#        exit $retval
+#    fi
+#fi

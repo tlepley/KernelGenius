@@ -1,0 +1,11 @@
+#ifndef OPERATION
+#define OPERATION Add
+#endif
+ 
+kernel Operation(int width=[1:1920], int height=[1:1080],
+			float in0[height][width], float in1[height][width]) {
+   	
+	OPERATION<float> Operation(in0,in1);
+	
+	return Operation;
+}

@@ -1,0 +1,15 @@
+typedef struct {unsigned char R; unsigned char G; unsigned char B;} RGB;
+typedef struct {unsigned char Y; unsigned char U; unsigned char V;} YUV;
+
+kernel RGB2YUV(int width=[1:1920], int height=[1:1080],
+       	       RGB in[height][width]) {
+   	  	
+  Operator<YUV> out(in) {
+	.function = ${
+		@out.Y =  (0.257f * $in.R) + (0.504f * $in.G) + (0.098f * $in.B) + 16;
+		@out.U = -(0.148f * $in.R) - (0.291f * $in.G) + (0.439f * $in.B) + 128;
+		@out.V =  (0.439f * $in.R) - (0.368f * $in.G) - (0.071f * $in.B) + 128;
+	 }$;
+  };
+  return out;
+}

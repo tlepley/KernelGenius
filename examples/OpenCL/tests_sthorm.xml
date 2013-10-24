@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="KernelGenius examples">
+
+  <test name="downsampling">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C downsampling clean run</command>
+    </config>
+  </test>
+
+  <test name="gradient">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C gradient clean run</command>
+    </config>
+  </test>
+
+  <test name="imageDifference">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C imageDifference clean run</command>
+    </config>
+  </test>
+ 
+  <test name="separableConvolution">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C separableConvolution clean run</command>
+    </config>
+  </test>
+
+  <test name="sobel">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C sobel clean run</command>
+    </config>
+  </test>
+
+  <test name="sobelLowLevel">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C sobelLowLevel clean run</command>
+    </config>
+  </test>
+
+  <test name="threshold">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C threshold clean run</command>
+    </config>
+  </test>
+
+  <test name="upsampling">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C upsampling clean run</command>
+    </config>
+  </test>
+  
+  <test name="downsampling">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg -C downsampling clean run</command>
+    </config>
+  </test>
+
+</testset>

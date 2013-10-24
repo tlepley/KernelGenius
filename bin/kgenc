@@ -1,0 +1,211 @@
+#!/bin/sh
+
+##################################################################
+#  This file is part of KernelGenius.
+#
+#  Copyright (C) 2013 STMicroelectronics
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 3 of the License, or (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  Lesser General Public License for more details.
+# 
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this program; if not, write to the Free
+#  Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA 02110-1301 USA.
+# 
+#  Authors: Thierry Lepley
+##################################################################
+
+# ------------------------------------------------------------------------------
+# Generic KGENC Compiler batch script (for any target device)
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home dir
+#   KGEN_PKG  - location of KGEN package
+# ------------------------------------------------------------------------------
+
+
+# OS specific support.  $var _must_ be set to either true or false.
+cygwin=false;
+darwin=false;
+mingw=false
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+  MINGW*) mingw=true;;
+  Darwin*) darwin=true 
+           if [ -z "$JAVA_VERSION" ] ; then
+             JAVA_VERSION="CurrentJDK"
+           else
+             echo "Using Java version: $JAVA_VERSION"
+           fi
+           if [ -z "$JAVA_HOME" ] ; then
+             JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/${JAVA_VERSION}/Home
+           fi
+           ;;
+esac
+if [ -z "$JAVA_HOME" ] ; then
+  if [ -r /etc/gentoo-release ] ; then
+    JAVA_HOME=`java-config --jre-home`
+  fi
+fi
+if [ -z "$KGEN_PKG" ] ; then
+  ## resolve links - $0 may be a link to KGEN's home
+  PRG="$0"
+
+  # need this for relative symlinks
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
+    else
+      PRG="`dirname "$PRG"`/$link"
+    fi
+  done
+
+  saveddir=`pwd`
+
+  KGEN_PKG=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  KGEN_PKG=`cd "$KGEN_PKG" && pwd`
+
+  cd "$saveddir"
+  # echo Using KGENc at $KGEN_PKG
+fi
+
+# For Cygwin, ensure paths are in UNIX format before anything is touched
+if $cygwin ; then
+  [ -n "$KGEN_PKG" ] &&
+    KGEN_PKG=`cygpath --unix "$KGEN_PKG"`
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+fi
+
+# For Migwn, ensure paths are in UNIX format before anything is touched
+if $mingw ; then
+  [ -n "$KGEN_PKG" ] &&
+    KGEN_PKG="`(cd "$KGEN_PKG"; pwd)`"
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
+  # TODO classpath?
+fi
+
+## Preparation of the java command to be executed
+if [ -z "$JAVACMD" ] ; then
+  if [ -n "$JAVA_HOME"  ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+    fi
+  else
+    JAVACMD=`which java`
+  fi
+fi
+
+## Print error if the java command is not ready
+if [ ! -x "$JAVACMD" ] ; then
+  echo "Error: JAVA_HOME is not defined correctly."
+  echo "  We cannot execute $JAVACMD"
+  exit 1
+fi
+
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin; then
+  [ -n "$KGEN_PKG" ] &&
+    KGEN_PKG=`cygpath --path --windows "$KGEN_PKG"`
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
+  [ -n "$HOME" ] &&
+    HOME=`cygpath --path --windows "$HOME"`
+fi
+
+
+# Set the CLASSPATH
+
+#-> Project root in the classpath
+if [ -z "$KGEN_CLASSPATH" ] ; then
+  KGEN_CLASSPATH="${KGEN_PKG}"
+else
+  if $cygwin; then
+    KGEN_CLASSPATH="${KGEN_CLASSPATH};${KGEN_PKG}"
+  else
+    KGEN_CLASSPATH="${KGEN_CLASSPATH}:${KGEN_PKG}"
+  fi
+fi
+
+# -> Project generated JAR
+JAR_DIRECTORY="$KGEN_PKG"/jar
+JAR_SET=`ls "$JAR_DIRECTORY"`
+for i in $JAR_SET; do
+  if [ -z "$KGEN_CLASSPATH" ] ; then
+    if $cygwin; then
+      KGEN_CLASSPATH="${JAR_DIRECTORY}\\${i}"
+    else
+      KGEN_CLASSPATH="${JAR_DIRECTORY}/${i}"
+    fi
+  else
+    if $cygwin; then
+      KGEN_CLASSPATH="${KGEN_CLASSPATH};${JAR_DIRECTORY}\\${i}"
+    else
+      KGEN_CLASSPATH="${KGEN_CLASSPATH}:${JAR_DIRECTORY}/${i}"
+    fi
+  fi
+done
+
+# -> External JAR (optional directly)
+LIB_DIRECTORY="$KGEN_PKG"/lib
+if [ -d "$LIB_DIRECTORY" ] ; then
+  LIB_SET=`ls "$LIB_DIRECTORY"`
+  for i in $LIB_SET; do
+    if [ -z "$KGEN_CLASSPATH" ] ; then
+      if $cygwin; then
+        KGEN_CLASSPATH="${LIB_DIRECTORY}\\${i}"
+      else
+        KGEN_CLASSPATH="${LIB_DIRECTORY}/${i}"
+      fi
+    else
+      if $cygwin; then
+        KGEN_CLASSPATH="${KGEN_CLASSPATH};${LIB_DIRECTORY}\\${i}"
+      else
+        KGEN_CLASSPATH="${KGEN_CLASSPATH}:${LIB_DIRECTORY}/${i}"
+      fi
+    fi
+  done
+fi
+
+
+if [ -n "$KGEN_TARGETS" ]; then
+  if $cygwin; then
+      KGEN_CLASSPATH="${KGEN_TARGETS};${KGEN_CLASSPATH}"
+  else
+      KGEN_CLASSPATH="${KGEN_TARGETS}:${KGEN_CLASSPATH}"
+  fi
+fi
+
+
+## Launcher class name
+LAUNCHER=driver.KernelGenius
+
+# Build the command
+KGEN_COMMAND="$JAVACMD -classpath ${KGEN_CLASSPATH} ${LAUNCHER} --install_dir ${KGEN_PKG} $@"
+
+# Some verbosing
+#echo $KGEN_CLASSPATH
+#echo $KGEN_COMMAND
+
+# Command execution
+exec $KGEN_COMMAND
+ret_code=$?
+exit $ret_code
+

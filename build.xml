@@ -1,0 +1,148 @@
+<!--
+ !  \par
+ !  This file is part of the KernelGenius compiler technology.
+ !  Redistribution of this file to outside parties is strictly prohibited
+ !  without the written consent of the module owner indicated below.\n
+ !
+ !  \par  Module owner:
+ !  Thierry Lepley, STMicroelectronics (thierry.lepley@st.com)
+ !
+ !  \par  STMicroelectronics Copyright (C) 2012-2013
+ !
+ !  \par  Authors:
+ !  Thierry Lepley, STMicroelectronics (thierry.lepley@st.com)
+-->
+
+<project name="KernelGenius" default="build">
+
+  <!-- ==================================== -->
+  <!-- ======== PROPERTY DEFINITION ======= -->
+  <!-- ==================================== -->
+
+  <property name="src" value="${basedir}/src" />
+  <property name="src.parser" value="${src}/parser" />
+  <property name="lib" value="${basedir}/lib" />
+
+  <!-- Use a pathconvert task to define the "antlr.path" property to ensure
+       that it is correctly defined for the current platform since it is used by
+       platform dependent tools (i.e. make) -->
+  <pathconvert property="antlr.path" dirsep="/" >
+    <path location="${lib}/antlr-3.4-complete.jar" />
+  </pathconvert>
+
+  <property name="parser-build" value="${basedir}/parser-build" />
+  <property name="java-build" value="${basedir}/build" />
+  <property name="out" value="${basedir}/jar" />
+
+  <!-- ==================================== -->
+  <!-- ========== INITIALIZATION ========== -->
+  <!-- ==================================== -->
+
+  <path id="classpath">
+    <pathelement location="${java-build}" />
+    <fileset dir="${lib}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <!-- ==================================== -->
+  <!-- ============== COMPILE ============= -->
+  <!-- ==================================== -->
+
+  <!-- generate java sources from antlr grammar files -->
+  <!-- call 'make' in the directory containing the antlr files. -->
+  <target name="antlr.generate"
+     description="Compile parsers" >
+    <exec dir="${src.parser}"
+          executable="make"
+          failonerror="true"
+          taskname="antlr">
+      <arg value="ROOT_DIR=${basedir}" />
+      <arg value="GENDIR=${parser-build}/parser" />
+      <arg value="ANTLR_PATH=${basedir}/lib/antlr-3.4-complete.jar" />
+    </exec>
+  </target>
+
+  <target name="compile"
+          description="Compile the java code"
+          depends="antlr.generate">
+    <mkdir dir="${java-build}" />
+    <javac destdir="${java-build}" debug="on" target="1.6">
+      <classpath refid="classpath" />
+      <src path="${src}:${parser-build}" />
+      <include name="**/*.java" />
+    </javac>
+  </target>
+
+  <!-- ==================================== -->
+  <!-- =============== JAR ================ -->
+  <!-- ==================================== -->
+
+  <target name="build"
+          description="Build Jar file"
+          depends="compile">
+    <mkdir dir="${out}" />
+    <jar destfile="${out}/KernelGenius.jar" basedir="${java-build}" />
+  </target>
+
+  <!-- For eclipse: only jar building, no dep with compile -->
+  <!-- eclipse compiles itself java files                  -->
+  <target name="jar"
+          description="Build Jar file" >
+    <mkdir dir="${out}" />
+    <jar destfile="${out}/KernelGenius.jar" basedir="${java-build}" />
+  </target>
+
+  <!-- ==================================== -->
+  <!-- ============= INSTALL ============== -->
+  <!-- ==================================== -->
+
+  <target name="install"
+	  description="Install the compilers"
+          depends="build">
+    <exec dir="${basedir}" executable="script/INSTALL" failonerror="true" />
+  </target>
+
+  <!-- ==================================== -->
+  <!-- ============== CLEAN =============== -->
+  <!-- ==================================== -->
+
+  <target name="clean"
+          description="Removes generated files"
+          depends="clean_parser,clean_jar" >
+    <delete dir="${java-build}" />
+  </target>
+	
+  <!-- For eclipse: parser only cleaning -->
+  <target name="clean_parser"
+	description="Removes jar files">
+    <exec dir="${src.parser}" executable="make" failonerror="true">
+      <arg value="clean" />
+      <arg value="ROOT_DIR=${basedir}" />
+      <arg value="GENDIR=${parser-build}/parser" />
+   </exec>
+	<delete dir="${parser-build}" />
+  </target>
+		
+  <!-- For eclipse: final jar only cleaning -->
+  <target name="clean_jar"
+	description="Removes jar files">
+	<delete dir="${out}" />
+  </target>
+
+
+  <!-- ==================================== -->
+  <!-- =============== HELP =============== -->
+  <!-- ==================================== -->
+
+  <target name="help">
+    <echo message="**This is the ant build file for the KernelGenius project.**" />
+    <echo message="The available targets are the following:" />
+    <echo message="  compile: compiles the product into ${build}" />
+    <echo message="  build  : compiles and builds a jar into ${out}" />
+    <echo message="  install: compiles and create installation directories into ${out}" />
+    <echo message="  clean  : removes all generated files." />
+    <echo message="" />
+  </target>
+
+</project>

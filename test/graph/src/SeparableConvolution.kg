@@ -1,0 +1,40 @@
+#ifndef BORDER_MODE
+#define BORDER_MODE zero
+#endif
+ 
+kernel SeparableConvolution5x5(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {
+
+	Convolution<float> conv_x(in) {
+		.border = BORDER_MODE;
+		.coefficients= (float[-2:2]) { -0.56, 1.76, -3.12, 1.76, -0.56};
+	};
+
+	Convolution<float> conv_y(conv_x) {
+		.border = BORDER_MODE;
+		.coefficients= (float[-2:2][1]) { {-0.56}, {1.76}, {-3.12}, {1.76}, {-0.56}};
+	};
+	
+	return conv_y;
+}
+
+kernel SeparableConvolution5x5Generic(int width=[1:1920], int height=[1:1080],
+			float in[height][width], float filter[5]) {
+
+	Filter<float> conv_x(in,filter) {
+		.border = BORDER_MODE;
+		.function= ${ 
+		  @conv_x[0][0]=filter[0]*$in[0][-2]+filter[1]*$in[0][-1]+filter[2]*$in[0][0]+filter[3]*$in[0][1]+filter[4]*$in[0][2];
+		}$;
+	};
+
+	Filter<float> conv_y(conv_x,filter) {
+		.border = BORDER_MODE;
+		.function= ${ 
+		  @conv_y[0][0]=filter[0]*$conv_x[-2][0]+filter[1]*$conv_x[-1][0]+filter[2]*$conv_x[0][0]+filter[3]*$conv_x[1][0]+filter[4]*$conv_x[2][0];
+		}$;
+	};
+	
+	return conv_y;
+}
+

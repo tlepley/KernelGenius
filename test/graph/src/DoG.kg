@@ -1,0 +1,73 @@
+kernel DoG(int width=[1:640], int height=[1:1080],
+		    float in[height][width]) {
+  
+  Convolution<float> g1(in) {
+    .border = BORDER;
+    .coefficients= (float[-1:1][-1:1]) { {-1., 0., 1.},
+					 {-2., 0., 2.},
+					 {-1., 0., 1.} };
+  };
+  
+  Convolution<float> g2(g1) {
+    .border = BORDER;
+    .coefficients= (float[-1:1][-1:1]) { {-1., -2., -1.},
+					 { 0.,  0.,  0.},
+					 { 1.,  2. , 1.} } ;
+  };
+  
+  Sub<float> s1(g2,g1);
+  return s1;
+  
+
+
+  Filter<float> d1(in) {
+    .border = BORDER;
+    .stride_in = {2,2};
+    .function = ${
+      @d1[0][0]=$in[0][0];
+    }$;
+  };
+  
+  Convolution<float> h1(d1) {
+    .border = BORDER;
+    .coefficients= (float[-1:1][-1:1]) { {-1., 0., 1.},
+					 {-2., 0., 2.},
+					 {-1., 0., 1.} };
+  };
+  
+  Convolution<float> h2(h1) {
+    .border = BORDER;
+    .coefficients= (float[-1:1][-1:1]) { {-1., -2., -1.},
+					 { 0.,  0.,  0.},
+					 { 1.,  2. , 1.} } ;
+  };
+  
+  Sub<float> s2(h2,h1);
+  return s2;
+
+
+  //  Filter<float> d2(d1) {
+  //    .border = BORDER;
+  //    .stride_in = {2,2};
+  //    .function = ${
+  //      @d2[0][0]=$d1[0][0];
+  //    }$;
+  //  };
+  
+  //  Convolution<float> i1(d2) {
+  //    .border = BORDER;
+  //    .coefficients= (float[-1:1][-1:1]) { {-1., 0., 1.},
+  //					 {-2., 0., 2.},
+  //					 {-1., 0., 1.} };
+  //  };
+  
+  //  Convolution<float> i2(i1) {
+  //    .border = BORDER;
+  //    .coefficients= (float[-1:1][-1:1]) { {-1., -2., -1.},
+  //					 { 0.,  0.,  0.},
+  //					 { 1.,  2. , 1.} } ;
+  //  };
+  
+  //  Sub<float> s3(i2,i1);
+  //  return s3;
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="KernelGenius examples">
+
+  <test name="downsampling">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C downsampling clean run</command>
+    </config>
+  </test>
+
+  <test name="gradient">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C gradient clean run</command>
+    </config>
+  </test>
+
+  <test name="imageDifference">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C imageDifference clean run</command>
+    </config>
+  </test>
+ 
+  <test name="separableConvolution">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C separableConvolution clean run</command>
+    </config>
+  </test>
+
+  <test name="sobel">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C sobel clean run</command>
+    </config>
+  </test>
+
+  <test name="sobelLowLevel">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C sobelLowLevel clean run</command>
+    </config>
+  </test>
+
+  <test name="threshold">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C threshold clean run</command>
+    </config>
+  </test>
+
+  <test name="upsampling">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make FABRIC_TYPE=xp70 -C upsampling clean run</command>
+    </config>
+  </test>
+
+</testset>

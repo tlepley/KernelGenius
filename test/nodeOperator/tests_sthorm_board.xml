@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="Operator node">
+
+
+<!-- ######################################################################### -->
+<!--                               MULTI WORK-GROUP                            -->
+<!-- ######################################################################### -->
+
+<testset name="Multi-cluster">
+
+  <test name="Threshold">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+  </test>
+
+  <test name="Threshold2">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+  </test>
+
+  <test name="ImageConversion">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+</testset>

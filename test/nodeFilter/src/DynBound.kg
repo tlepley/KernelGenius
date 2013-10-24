@@ -1,0 +1,53 @@
+/**
+   This is the test of the Filter dynamic access bound property.
+
+   Redistribution of this file to outside parties is
+   strictly prohibited without the written consent
+   of the module owner indicated below.
+
+   \par  Module owner: 
+   Thierry Lepley, STMicroelectronics (thierry.lepley@st.com)
+
+   \par  Copyright STMicroelectronics (C) 2013
+
+   \par  Authors: 
+   Thierry Lepley, STMicroelectronics (thierry.lepley@st.com)
+
+**/
+
+#ifndef BORDER
+# define BORDER undef
+#endif
+#ifndef  WINDOW
+# define WINDOW 1
+#endif
+
+
+${
+  constant int lut1x[8] = {WINDOW,WINDOW,0,-WINDOW,-WINDOW,-WINDOW,0,WINDOW};
+  constant int lut1y[8] = {0,WINDOW,WINDOW,WINDOW,0,-WINDOW,-WINDOW,-WINDOW};
+
+  constant int lut2x[8] = {-WINDOW,-WINDOW,0,WINDOW,WINDOW,WINDOW,0,-WINDOW};
+  constant int lut2y[8] = {0,-WINDOW,-WINDOW,-WINDOW,0,WINDOW,WINDOW,WINDOW};
+}$
+
+
+kernel DynBound(int width=[1:1920], int height=[1:1080],
+		char dir[height][width], int val[height][width]) {
+
+  Filter<int> out(dir,val) {
+    .border = BORDER;
+    .read_bound(val) = [-WINDOW:WINDOW][-WINDOW:WINDOW];
+    .function = ${
+      int d=$dir[0][0]%8;
+      int x1=lut1x[d];
+      int y1=lut1y[d];
+      int x2=lut1x[d];
+      int y2=lut1y[d];
+      
+      @out[0][0] = $val[y1][x1] + $val[y2][x2];
+    }$;
+  };
+
+  return out;
+}

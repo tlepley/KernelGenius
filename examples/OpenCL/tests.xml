@@ -1,0 +1,3 @@
+<testset name="KernelGenius testsuite">
+  <testset name="STHORM target"	file="tests_sthorm.xml"/>
+</testset>

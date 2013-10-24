@@ -1,0 +1,3 @@
+<testset name="Generic KernelGenius testsuite">  
+  <testset name="language construct" file="language/tests.xml"/>
+</testset>

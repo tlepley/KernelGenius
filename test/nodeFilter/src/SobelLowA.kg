@@ -1,0 +1,20 @@
+#ifndef BORDER
+# define BORDER undef
+#endif
+
+kernel Sobel3x3(int width=[1:1920], int height=[1:1080],
+			float in[height][width]) {
+   	  	
+	Filter<float> sob(in) {
+		.border = BORDER;
+		.indexing = c;
+		.function = ${
+		   float gx=$in[-1][1]-$in[-1][-1]+2*($in[0][1]-$in[0][-1])+$in[1][1]-$in[1][-1];
+		   float gy=$in[1][-1]-$in[-1][-1]+2*($in[1][0]-$in[-1][0])+$in[1][1]-$in[-1][1];
+		   @sob[0][0]=sqrt(gx*gx+gy*gy);
+		 }$;
+	};
+	
+	return sob;
+}
+

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="graph construct">
+
+
+<!-- ######################################################################### -->
+<!--                               MULTI WORK-GROUP                            -->
+<!-- ######################################################################### -->
+
+<testset name="Multi-cluster">
+
+
+  <test name="Sobel (Graph)">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelGraph.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70:async">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelGraph.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution hard-coefs (Graph)">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolution.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70:async">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolution.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution generic-coefs (Graph)">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolutionGeneric.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70:async">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolutionGeneric.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Upsampling (Graph)">
+    <config name="xp70">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70:async">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DoG (Multi-rate)">
+    <config name="posix">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f DoG.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">clCheck 500 make KGCOMPILER=sthormkg PLT_TYPE=sthorm -f DoG.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+</testset>
