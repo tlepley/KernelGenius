@@ -24,6 +24,433 @@
 #ifndef COMMON_OCL_H
 #define COMMON_OCL_H
 
+void oclCheckStatus(cl_int status, char *message);
+
+//=====================================================================================
+//OpenCL context and base OpenCL objects
+//=====================================================================================
+
+/**
+ * Get the first OpenCL platform of the OpenCL infrastructue
+ */
+cl_platform_id oclGetFirstPlatform() {
+  cl_int status;
+
+  /* Look available platforms */
+  /* ------------------------ */
+  cl_uint numPlatforms;
+  cl_platform_id platforms[1];
+  status = clGetPlatformIDs(1, platforms, &numPlatforms);
+  oclCheckStatus(status,"clGetPlatformIDs failed.");
+  
+  /* At least one platform must be available */
+  if (numPlatforms==0) {
+    fprintf(stderr,"No OpenCL platform available");
+    exit(1);
+  }
+  
+  return platforms[0];
+}
+
+/**
+ * Get the first device of a platform
+ */
+cl_device_id oclGetFirstDevice(cl_platform_id platform) {
+  cl_int status;
+  cl_device_id device;
+  
+  /* Pickup the first available device */
+  cl_uint numDevices;
+  status = clGetDeviceIDs(
+			  platform,
+			  CL_DEVICE_TYPE_ALL,
+			  1,
+			  &device,
+			  &numDevices);
+  oclCheckStatus(status,"clGetDeviceIDs failed.");
+  
+  /* At least one device must be available */
+  if (numDevices==0) {
+    fprintf(stderr,"No Device available in OpenCL platform");
+    exit(1);
+  }
+  
+  return device;
+}
+
+/**
+ * Create an OpenCL context for a given platform/device
+ */
+cl_context oclCreateContext(cl_platform_id platform,
+			    cl_device_id device) {
+  cl_context context;
+  cl_int status;
+
+  cl_context_properties context_prop[3] = { CL_CONTEXT_PLATFORM,
+					    (cl_context_properties)platform,
+					    0 };
+  
+  context = clCreateContext(context_prop,
+			    1, &device,
+			    NULL,NULL,
+			    &status);
+  oclCheckStatus(status,"clCreateContext failed.");
+  return context;
+}
+
+/**
+ * Create an in-order command queue for a given device in a context
+ */
+cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id device) {
+  cl_int status;
+  cl_command_queue commandQueue =
+    clCreateCommandQueue(context, 
+			 device, 
+			 0, 
+			 &status);
+  oclCheckStatus(status,"clCreateCommandQueue failed.");
+  return commandQueue;
+}
+
+/**
+ * Create an out-of-order command queue for a given device in a context
+ */
+cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id device) {
+  cl_int status;
+  cl_command_queue commandQueue =
+    clCreateCommandQueue(context, 
+			 device, 
+			 CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, 
+			 &status);
+  oclCheckStatus(status,"clCreateCommandQueue OOO failed.");
+  return commandQueue;
+}
+
+void * oclCreateMapBuffer(cl_context context,
+		cl_command_queue queue,
+		cl_mem_flags create_flags,
+		cl_mem_flags map_flags,
+		size_t size_elem,
+		size_t nb_elem,
+		cl_mem *buffer) {
+	cl_int status;
+	size_t size = sizeof(size_elem) * nb_elem;
+	cl_mem b = clCreateBuffer(context, 
+			create_flags,
+			size,
+			NULL, 
+			&status);
+	oclCheckStatus(status,"clCreateBuffer failed.");
+	*buffer = b;
+	void * p = clEnqueueMapBuffer(queue,
+			b,
+			CL_TRUE,
+			map_flags,
+			0,
+			size,
+			0, NULL,
+			NULL,
+			&status
+			);
+	oclCheckStatus(status,"clEnqueueMapBuffer failed.");
+	return p;
+}
+
+
+//=====================================================================================
+//                           Program and Kernel creation
+//=====================================================================================
+
+#define INTERN_BUF_SIZE 512
+
+/**
+ * Read a kernel source from a file
+ */
+char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
+	FILE *file;
+
+	char Path[INTERN_BUF_SIZE];
+	Path[0]='\0';
+	char* p = getenv ("OCL_KERNELS_PATH");
+	if (p != NULL) {
+		strncat(&Path[0],p,INTERN_BUF_SIZE-1);
+	}
+	strncat(&Path[0],fileName,INTERN_BUF_SIZE-1);
+
+	// Open file 
+	if ((file = fopen(Path,"r"))==NULL) {
+		fprintf(stderr,"Can not open kernel source file:%s\n", &Path[0]);
+		exit(1);
+	}
+
+	// Get the file size
+	size_t size;
+	fseek(file,0,SEEK_END);
+	size=ftell(file); *sizeFile=size;
+	fseek(file,0,SEEK_SET);
+
+	// Copy the file to the string
+	char *str=malloc(size+1);
+	fread(str,size,1,file);
+	str[size]='\0';
+
+	fclose(file);
+	return str;
+}
+
+/**
+ * Read a kernel binary from a file
+ */
+unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *sizeFile) {
+	FILE *file;
+
+	char Path[INTERN_BUF_SIZE];
+	Path[0]='\0';
+	char* p = getenv ("OCL_KERNELS_PATH");
+	if (p != NULL) {
+		strncat(&Path[0],p,INTERN_BUF_SIZE-1);
+	}
+	strncat(&Path[0],fileName,INTERN_BUF_SIZE-1);
+
+	// Open file 
+	if ((file = fopen(Path,"r"))==NULL) {
+		fprintf(stderr,"Can not open kernel binary file:%s\n", &Path[0]);
+		exit(1);
+	}
+
+	// Get the file size
+	size_t size;
+	fseek(file,0,SEEK_END);
+	size=ftell(file); *sizeFile=size;
+	fseek(file,0,SEEK_SET);
+
+	// Copy the file to the string
+	unsigned char *str=malloc(size);
+	fread(str,size,1,file);
+
+	fclose(file);
+	return str;
+}
+
+/**
+ * Read and build an OpenCL program from a source file
+ */
+cl_program oclCreateProgramFromSource(cl_context context, cl_device_id device,
+		const char *filename, const char *options) {
+	// Read the program from the file
+	size_t sourceSize;
+	char * source=oclGetProgramSrcFromFile(filename, &sourceSize);
+
+	// Create the program object
+	cl_int status;
+	cl_program program = clCreateProgramWithSource(
+			context,
+			1,
+			(const char **)&source,
+			(const size_t*)&sourceSize,
+			&status);
+	oclCheckStatus(status,"clCreateProgramWithSource failed.");
+
+	/* Compile the program */
+	status = clBuildProgram(program, 1, &device, options, NULL, NULL);
+	if (status!=CL_SUCCESS) {
+		size_t nb_bytes;
+		clGetProgramBuildInfo(program,device,CL_PROGRAM_BUILD_LOG,0,NULL,&nb_bytes);
+		char *p=malloc(nb_bytes+1);
+		clGetProgramBuildInfo(program,device,CL_PROGRAM_BUILD_LOG,nb_bytes+1,p,&nb_bytes);
+		fprintf(stderr,"Program '%s' build error\nCompilation Log:\n%s\n", filename, p);
+		free(p);
+		oclCheckStatus(status,"clBuildProgram failed.");
+	}
+	return program;
+}
+
+/**
+ * Read and build an OpenCL program from a binary file
+ */
+cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id device,
+		const char *filename) {
+	// Read the program from the file
+	size_t length;
+	unsigned char * binary=oclGetProgramBinFromFile(filename, &length);   
+
+	// Create the program object
+	cl_int status;
+	cl_int binary_status;  
+	#if defined(__GEPOP__) || defined(__ANDROID__)
+	cl_program program = clCreateProgramWithBinaryDebug(
+			context,
+			(cl_uint)1,
+			&device,
+			(const size_t *)&length,
+			(const unsigned char **)&binary,
+			&filename,
+			&binary_status,
+			&status);
+	oclCheckStatus(status,"clCreateProgramWithBinary failed.");
+	#else
+		cl_program program = clCreateProgramWithBinary(
+				context,
+				(cl_uint)1,
+				&device,
+				(const size_t *)&length,
+				(const unsigned char **)&binary,
+				&binary_status,
+				&status);
+	oclCheckStatus(status,"clCreateProgramWithBinary failed.");
+	#endif
+
+	/* Compile the CL program */
+	status = clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+	oclCheckStatus(status,"clBuildProgram failed.");
+
+	return program;
+}
+
+/**
+ * Get the program path from the environment if possible. The OCL_APP_BUILD variable
+ * is usually set by the Eclipse OpenCL Wizard plugin
+ */
+char *oclGetProgramPath(char *path, char *name, size_t path_size) {
+	char *base = getenv("OCL_APP_BUILD");
+	if (base != NULL) {
+		// Use base path specified in environment variable
+		snprintf(path, path_size, "%s/%s", base, name);
+	} else {
+		// Assume kernel is in current directory
+		snprintf(path, path_size, "./%s", name);
+	}
+	return path;
+}
+
+
+//=====================================================================================
+//Debug and checks facilities
+//=====================================================================================
+
+/**
+ * Print to stdout some information regarding the platform
+ *
+ * @param platform_id Identifier of the platform
+ */
+void oclDisplayPlatformInfo(cl_platform_id platform_id) {
+	cl_int status;
+	char buffer[100];
+
+	printf("OpenCL Platform, id %p\n", platform_id);
+	status = clGetPlatformInfo(platform_id,
+			CL_PLATFORM_NAME,
+			sizeof(buffer),
+			buffer,
+			NULL);
+	oclCheckStatus(status,"clGetPlatformInfo(CL_PLATFORM_NAME) failed.");
+	printf("  name  : %s\n", buffer);
+
+	status = clGetPlatformInfo(platform_id,
+			CL_PLATFORM_VENDOR,
+			sizeof(buffer),
+			buffer,
+			NULL);
+	oclCheckStatus(status,"clGetPlatformInfo(CL_PLATFORM_VENDOR) failed.");
+	printf("  vendor: %s\n", buffer);
+}
+
+/**
+ * Check if a kernel NDRange structure is compatible with a device
+ */
+void checkNDRangeWithDevice(cl_device_id device,
+			    cl_kernel kernel,
+			    int nb_dim,
+			    const size_t globalThreads[],
+			    const size_t localThreads[]) {
+  int i;
+  cl_int status;
+  
+  /* Get the maximum number of dimensions supported by the device */
+  cl_uint  maxDimensions;
+  status = clGetDeviceInfo(
+			   device,
+			   CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+			   sizeof(cl_uint),
+			   (void *)&maxDimensions,
+			   NULL);
+  oclCheckStatus(status,"clGetDeviceInfo(CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS) failed.");
+  if (maxDimensions<nb_dim) {
+    fprintf(stderr,"Error: device supports %d dimensions when we require %d",
+	    maxDimensions,nb_dim);
+    exit(1);
+  }
+  
+  /* Check local size compatibility in each dimension */
+  /* ------------------------------------------------ */
+  size_t maxWorkItemSizes[maxDimensions];
+  status = clGetDeviceInfo(
+			   device,
+			   CL_DEVICE_MAX_WORK_ITEM_SIZES,
+			   sizeof(size_t)*maxDimensions,
+			   (void *)maxWorkItemSizes,
+			   NULL);
+  oclCheckStatus(status,"clGetDeviceInfo(CL_DEVICE_MAX_WORK_ITEM_SIZES) failed.");
+  
+  for (i=0;i<nb_dim;i++) {
+    if(
+       (localThreads[i] > maxWorkItemSizes[i])
+       ) {
+      fprintf(stderr,
+	      "Error: device support work-groups of %Zd work-items when the application requires %Zd work-items in dimension %d\n",
+	      maxWorkItemSizes[i],
+	      globalThreads[i],
+	      i);
+      exit(1);
+    }
+  }
+  
+  size_t requiredWorkGroupSize=1;
+  for (i=0;i<nb_dim;i++) {
+    requiredWorkGroupSize*=localThreads[i];
+  }
+  
+  /* Check work-group size compatibility */
+  /* ----------------------------------- */
+  size_t maxWorkGroupSize;
+  status = clGetDeviceInfo(
+			   device,
+			   CL_DEVICE_MAX_WORK_GROUP_SIZE,
+			   sizeof(size_t),
+			   (void *)&maxWorkGroupSize,
+			   NULL);
+  oclCheckStatus(status,"clGetDeviceInfo(CL_DEVICE_MAX_WORK_GROUP_SIZE) failed.");
+  
+  if (requiredWorkGroupSize > maxWorkGroupSize) {
+    fprintf(stderr,
+	    "Error: device supports %Zd work-items per work-group, when the application requires %Zd",
+	    maxWorkGroupSize, requiredWorkGroupSize);
+    exit(1);
+  }
+  
+  /* Check Kernel/work-group compatibility with the device */
+  /* ----------------------------------------------------- */
+  size_t kernelWorkGroupSize;
+  status = clGetKernelWorkGroupInfo(kernel,
+				    device,
+				    CL_KERNEL_WORK_GROUP_SIZE,
+				    sizeof(size_t),
+				    &kernelWorkGroupSize,
+				    0);
+  oclCheckStatus(status,"clGetKernelWorkGroupInfo failed.");
+  
+  if((cl_uint)(requiredWorkGroupSize) > kernelWorkGroupSize) {
+    fprintf(stderr,"Error: \n");
+    fprintf(stderr," work-group size required by the application : %Zd\n",
+	    requiredWorkGroupSize);
+    fprintf(stderr," maximum work-group size supported for the kernel : %Zd\n", 
+	    kernelWorkGroupSize);
+    exit(1);
+  }
+}
+
+
+
 /**
  * Check the status returned by an OpenCL API function. In case of error,
  * print the message passed in parameter, print the error related to the status
@@ -186,119 +613,6 @@ void oclCheckStatus(cl_int status, char *message) {
     exit(1);
   }
 }
-
-/**
- * Get the first OpenCL platform of the OpenCL infrastructue
- */
-cl_platform_id oclGetFirstPlatform() {
-  cl_int status;
-
-  /* Look available platforms */
-  /* ------------------------ */
-  cl_uint numPlatforms;
-  cl_platform_id platforms[1];
-  status = clGetPlatformIDs(1, platforms, &numPlatforms);
-  oclCheckStatus(status,"clGetPlatformIDs failed.");
-  
-  /* At least one platform must be available */
-  if (numPlatforms==0) {
-    fprintf(stderr,"No OpenCL platform available");
-    exit(1);
-  }
-  
-  return platforms[0];
-}
-
-/**
- * Get the first device of a platform
- */
-cl_device_id oclGetFirstDevice(cl_platform_id platform) {
-  cl_int status;
-  cl_device_id device;
-  
-  /* Pickup the first available device */
-  cl_uint numDevices;
-  status = clGetDeviceIDs(
-			  platform,
-			  CL_DEVICE_TYPE_ALL,
-			  1,
-			  &device,
-			  &numDevices);
-  oclCheckStatus(status,"clGetDeviceIDs failed.");
-  
-  /* At least one device must be available */
-  if (numDevices==0) {
-    fprintf(stderr,"No Device available in OpenCL platform");
-    exit(1);
-  }
-  
-  return device;
-}
-
-/**
- * Create an OpenCL context for a given platform/device
- */
-cl_context oclCreateContext(cl_platform_id platform,
-			    cl_device_id device) {
-  cl_context context;
-  cl_int status;
-
-  cl_context_properties context_prop[3] = { CL_CONTEXT_PLATFORM,
-					    (cl_context_properties)platform,
-					    0 };
-  
-  context = clCreateContext(context_prop,
-			    1, &device,
-			    NULL,NULL,
-			    &status);
-  oclCheckStatus(status,"clCreateContext failed.");
-  return context;
-}
-
-/**
- * Create an out-of-order command queue for a given device in a context
- */
-cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id device) {
-  cl_int status;
-  cl_command_queue commandQueue =
-    clCreateCommandQueue(context, 
-			 device, 
-			 CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, 
-			 &status);
-  oclCheckStatus(status,"clCreateCommandQueue OOO failed.");
-  return commandQueue;
-}
-
-void * oclCreateMapBuffer(cl_context context,
-		cl_command_queue queue,
-		cl_mem_flags create_flags,
-		cl_mem_flags map_flags,
-		size_t size_elem,
-		size_t nb_elem,
-		cl_mem *buffer) {
-	cl_int status;
-	size_t size = sizeof(size_elem) * nb_elem;
-	cl_mem b = clCreateBuffer(context, 
-			create_flags,
-			size,
-			NULL, 
-			&status);
-	oclCheckStatus(status,"clCreateBuffer failed.");
-	*buffer = b;
-	void * p = clEnqueueMapBuffer(queue,
-			b,
-			CL_TRUE,
-			map_flags,
-			0,
-			size,
-			0, NULL,
-			NULL,
-			&status
-			);
-	oclCheckStatus(status,"clEnqueueMapBuffer failed.");
-	return p;
-}
-
 
 
 

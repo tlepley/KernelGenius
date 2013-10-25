@@ -164,8 +164,8 @@ CMD_EXEC_DEBUG = $(CMD_EXEC) --gdb=clgdb
 
 else
 # This is an other device (GPU)
-CMD_EXEC = cd $(PLT_BUILD_DIR);./$(notdir $(EXEC))
-CMD_EXEC_DEBUG = cd $(PLT_BUILD_DIR);gdb $(EXEC)
+CMD_EXEC = cd $(PLT_BUILD_DIR);./$(notdir $(EXEC)) $(RUN_ARGS) $(RUN_ARGS_TEST)
+CMD_EXEC_DEBUG = cd $(PLT_BUILD_DIR);gdb $(EXEC) $(RUN_ARGS) $(RUN_ARGS_TEST)
 endif
 
 $(EXEC): $(OBJS)
