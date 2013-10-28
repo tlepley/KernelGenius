@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="generic Filter node">
+
+
+<!-- ######################################################################### -->
+<!--                               MULTI WORK-GROUP                            -->
+<!-- ######################################################################### -->
+
+<testset name="GPU">
+
+  <test name="Sobel (Const value border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Sobel.mk BORDER=52 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Sobel (Duplicate border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Sobel.mk BORDER=duplicate WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Sobel (Mirror border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Sobel.mk BORDER=mirror WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Sobel (Skip border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Sobel.mk BORDER=skip WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Sobel (Undef border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Sobel.mk BORDER=undef WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="5x5 Convolution Asymetrical (Const value border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f ConvolutionAsym.mk BORDER=42 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="5x5 Convolution Asymetrical (Duplicate border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f ConvolutionAsym.mk BORDER=duplicate WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="5x5 Convolution Asymetrical (Mirror border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f ConvolutionAsym.mk BORDER=mirror WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="5x5 Convolution Asymetrical (Skip border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f ConvolutionAsym.mk BORDER=skip WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="5x5 Convolution Asymetrical (Undef border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f ConvolutionAsym.mk BORDER=undef WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Gradient (EXP border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Gradient.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Downsampling (2x2 input stride)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Downsampling.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Block (4x4 -> 2x2 stride)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Block.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Merge (Multiple iterative inputs)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f Merge.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="DynBound (Const value border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f DynBound.mk WINDOW=2 BORDER=18 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DynBound (Duplicate border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f DynBound.mk WINDOW=2 BORDER=duplicate WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DynBound (Mirror border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f DynBound.mk WINDOW=2 BORDER=mirror WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DynBound (Skip border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f DynBound.mk WINDOW=2 BORDER=skip WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DynBound (Undef border)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f DynBound.mk WINDOW=2 BORDER=undef WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+  
+  
+   <test name="BorderInputs (const/mirror)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f BorderInputs.mk WINDOW1=2 BORDER1=-58 WINDOW2=5 BORDER2=mirror WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+  
+   <test name="BorderInputs (undef/duplicate)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 FABRIC_TYPE=gpu_nvidia -f BorderInputs.mk WINDOW1=2 BORDER1=undef WINDOW2=7 BORDER2=duplicate WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+</testset>

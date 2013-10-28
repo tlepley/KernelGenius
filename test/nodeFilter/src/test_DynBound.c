@@ -291,7 +291,7 @@ int main(int argc, char * argv[]) {
   cl_program program = createDynBoundProgramFromBinary( context, device);
 #else
   /* create a CL program using the kernel source */
-  cl_program program = createDynBoundProgramFromSource( context, device, ULL);
+  cl_program program = createDynBoundProgramFromSource( context, device, NULL);
 #endif
   
   
@@ -402,8 +402,8 @@ int main(int argc, char * argv[]) {
   }
 
   /* Get back the output buffer from the device memory (blocking read) */
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
+  output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
 
   //==================================================================
@@ -411,7 +411,12 @@ int main(int argc, char * argv[]) {
   //==================================================================
 
   {
-    struct timeval start, end;
+	direction= clEnqueueMapBuffer(commandQueue,dirBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_char)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+	value= clEnqueueMapBuffer(commandQueue,valBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+
+	struct timeval start, end;
     gettimeofday(&start, NULL);
     
     // Compute reference data
@@ -420,6 +425,10 @@ int main(int argc, char * argv[]) {
     gettimeofday(&end, NULL);
     printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
+
+  dir = (char (*)[IMAGE_Y][IMAGE_X])direction;
+  val = (int (*)[IMAGE_Y][IMAGE_X])value;
+  out =(cl_int (*)[IMAGE_Y][IMAGE_X])output;
 
   // Check results
   int nok=0;

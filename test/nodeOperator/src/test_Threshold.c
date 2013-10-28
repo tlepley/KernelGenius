@@ -56,7 +56,6 @@ static int NB_WG1 = 1;
 static int THRESHOLD=15.5f;
 
 
-
 int computeThreshold(DATA_TYPE a, DATA_TYPE t) {
   return ((a>=t)?1:0);
 }
@@ -218,11 +217,7 @@ int main(int argc, char * argv[]) {
   //printf("-> Create Input/Output Buffer\n");
   /* Create an input/output buffers mapped in the host address space */
   cl_mem inputBuffer, outputBuffer;
-#ifdef DATA_INT
-  cl_int *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&inputBuffer);
-#else
-  cl_float *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&inputBuffer);
-#endif
+  DATA_TYPE *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&inputBuffer);
   cl_int *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&outputBuffer);
   int *check_output   = malloc(sizeof(int)*IMAGE_Y*IMAGE_X);
   
@@ -327,8 +322,8 @@ int main(int argc, char * argv[]) {
   oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
   
   /* Get back the output buffer from the device memory (blocking read) */
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
+  output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
   
   //==================================================================
@@ -345,12 +340,26 @@ int main(int argc, char * argv[]) {
 
 
   //==================================================================
-  // Check
+  // Check results
   //==================================================================
 
-  // Compute reference data
-  computeImage(check_output,input, THRESHOLD, IMAGE_X,IMAGE_Y);
+  {
+	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+ 
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    // Compute reference data
+    computeImage(check_output,input, THRESHOLD, IMAGE_X,IMAGE_Y);
+
+    gettimeofday(&end, NULL);
+    printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
   
+  in =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input;
+  out =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])output;
+
   // Check results
   int nok=0;
   int X_MIN=0, X_MAX=IMAGE_X;

@@ -493,17 +493,10 @@ int main(int argc, char * argv[]) {
   //printf("-> Create Input/Output Buffer\n");
   /* Create an input/output buffers mapped in the host address space */
   cl_mem inputBuffer,s1Buffer,s2Buffer,s3Buffer;
-#ifdef DATA_INT
-  cl_int *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&inputBuffer);
-  cl_int *s1Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&s1Buffer);
-  cl_int *s2Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),((IMAGE_X+1)/2)*((IMAGE_Y+1)/2),&s2Buffer);
-  cl_int *s3Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),((((IMAGE_X+1)/2)+1)/2)*((((IMAGE_Y+1)/2)+1)/2),&s3Buffer);
-#else
-  cl_float *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&inputBuffer);
-  cl_float *s1Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&s1Buffer);
-  cl_float *s2Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_float),((IMAGE_X+1)/2)*((IMAGE_Y+1)/2),&s2Buffer);
-  cl_float *s3Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_float),((((IMAGE_X+1)/2)+1)/2)*((((IMAGE_Y+1)/2)+1)/2),&s3Buffer);
-#endif
+  DATA_TYPE *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&inputBuffer);
+  DATA_TYPE *s1Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&s1Buffer);
+  DATA_TYPE *s2Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(DATA_TYPE),((IMAGE_X+1)/2)*((IMAGE_Y+1)/2),&s2Buffer);
+  DATA_TYPE *s3Matrix = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(DATA_TYPE),((((IMAGE_X+1)/2)+1)/2)*((((IMAGE_Y+1)/2)+1)/2),&s3Buffer);
   DATA_TYPE *check_s1Matrix   = malloc(sizeof(DATA_TYPE)*IMAGE_Y*IMAGE_X);
   DATA_TYPE *check_s2Matrix   = malloc(sizeof(DATA_TYPE)*((IMAGE_Y+1)/2)*((IMAGE_X+1)/2));
   DATA_TYPE *check_s3Matrix   = malloc(sizeof(DATA_TYPE)*((((IMAGE_Y+1)/2)+1)/2)*((((IMAGE_X+1)/2)+1)/2));
@@ -624,23 +617,14 @@ int main(int argc, char * argv[]) {
     printf("** OpenCL 'DoG' has completed. ** \n\n");
     printf("OpenCL Kernel execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
-   
+ 
   /* Get back the output buffer from the device memory (blocking read) */
-#ifdef DATA_INT
-  status = clEnqueueReadBuffer(commandQueue,s1Buffer,CL_TRUE,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,s1Matrix,1,&event,NULL);
+  s1Matrix = clEnqueueMapBuffer(commandQueue,s1Buffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
   oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-  status = clEnqueueReadBuffer(commandQueue,s2Buffer,CL_TRUE,0,sizeof(cl_int)*((IMAGE_X+1)/2)*((IMAGE_Y+1)/2),s2Matrix,1,&event,NULL);
+  s2Matrix = clEnqueueMapBuffer(commandQueue,s2Buffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*((IMAGE_X+1)/2)*((IMAGE_Y+1)/2),1,&event,NULL,&status);
   oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-  status = clEnqueueReadBuffer(commandQueue,s3Buffer,CL_TRUE,0,sizeof(cl_int)*((((IMAGE_X+1)/2)+1)/2)*((((IMAGE_Y+1)/2)+1)/2),s3Matrix,1,&event,NULL);
+  s3Matrix = clEnqueueMapBuffer(commandQueue,s3Buffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*((((IMAGE_X+1)/2)+1)/2)*((((IMAGE_Y+1)/2)+1)/2),1,&event,NULL,&status);
   oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-#else
-  status = clEnqueueReadBuffer(commandQueue,s1Buffer,CL_TRUE,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,s1Matrix,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-  status = clEnqueueReadBuffer(commandQueue,s2Buffer,CL_TRUE,0,sizeof(cl_float)*((IMAGE_X+1)/2)*((IMAGE_Y+1)/2),s2Matrix,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-  status = clEnqueueReadBuffer(commandQueue,s3Buffer,CL_TRUE,0,sizeof(cl_float)*((((IMAGE_X+1)/2)+1)/2)*((((IMAGE_Y+1)/2)+1)/2),s3Matrix,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-#endif
 
 
   //==================================================================
@@ -648,7 +632,10 @@ int main(int argc, char * argv[]) {
   //==================================================================
 
   {
-    struct timeval start, end;
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueReadBuffer input failed.");\
+
+	struct timeval start, end;
     gettimeofday(&start, NULL);
 
     // Compute reference data
@@ -657,6 +644,11 @@ int main(int argc, char * argv[]) {
     gettimeofday(&end, NULL);
     printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
+
+  in =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input;
+  s1 =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])s1Matrix;
+  s2 =(DATA_TYPE (*)[((IMAGE_Y+1)/2)][((IMAGE_X+1)/2)])s2Matrix;
+  s3 =(DATA_TYPE (*)[((((IMAGE_Y+1)/2)+1)/2)][((((IMAGE_X+1)/2)+1)/2)])s3Matrix;
 
   // Check results
   int nok=0;

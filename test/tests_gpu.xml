@@ -1,0 +1,7 @@
+<testset name="Kernel Genius testsuite dor the POSIX STHORM simulator">
+  <testset name="Basic Operations"	file="basicOperations/tests_gpu.xml"/>
+  <testset name="node Operator" 	file="nodeOperator/tests_gpu.xml"/>
+  <testset name="node Convolution"	file="nodeConvolution/tests_gpu.xml"/>
+  <testset name="node Filter"		file="nodeFilter/tests_gpu.xml"/>
+  <testset name="graph construct"	file="graph/tests_gpu.xml"/>
+</testset>

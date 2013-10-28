@@ -306,21 +306,10 @@ int main(int argc, char * argv[]) {
   //printf("-> Create Input/Output Buffer\n");
   /* Create an input/output buffers mapped in the host address space */
   cl_mem inputBuffer,outputBuffer,gxBuffer,gyBuffer;
-#ifdef DATA_INT
-  cl_int *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&inputBuffer);
-  gxBuffer = clCreateBuffer(context,CL_MEM_READ_WRITE,sizeof(cl_int)*IMAGE_X*IMAGE_Y,NULL,&status);
-  oclCheckStatus(status,"gx buffer creation");
-  gyBuffer = clCreateBuffer(context,CL_MEM_READ_WRITE,sizeof(cl_int)*IMAGE_X*IMAGE_Y,NULL,&status);
-  oclCheckStatus(status,"gy buffer creation");
-  cl_int *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&outputBuffer);
-#else
-  cl_float *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&inputBuffer);
-  gxBuffer = clCreateBuffer(context,CL_MEM_READ_WRITE,sizeof(cl_float)*IMAGE_X*IMAGE_Y,NULL,&status);
-  oclCheckStatus(status,"gx buffer creation");
-  gyBuffer = clCreateBuffer(context,CL_MEM_READ_WRITE,sizeof(cl_float)*IMAGE_X*IMAGE_Y,NULL,&status);
-  oclCheckStatus(status,"gy buffer creation");
-  cl_float *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&outputBuffer);
-#endif
+  DATA_TYPE *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&inputBuffer);
+  gxBuffer = clCreateBuffer(context,CL_MEM_READ_WRITE,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,NULL,&status);
+  gyBuffer = clCreateBuffer(context,CL_MEM_READ_WRITE,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,NULL,&status);
+  DATA_TYPE *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&outputBuffer);
   DATA_TYPE *check_output   = malloc(sizeof(DATA_TYPE)*IMAGE_Y*IMAGE_X);
   
   /* For using arrays instead of pointers */
@@ -455,20 +444,19 @@ int main(int argc, char * argv[]) {
     printf("OpenCL Kernel execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
     
-  
   /* Get back the output buffer from the device memory (blocking read) */
-#ifdef DATA_INT
-    status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-#else
-	status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-#endif
-oclCheckStatus(status,"clEnqueueReadBuffer failed.");
+  output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
+  
   //==================================================================
-  // Check
+  // Check results
   //==================================================================
 
   {
+	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+ 
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
@@ -479,6 +467,9 @@ oclCheckStatus(status,"clEnqueueReadBuffer failed.");
     printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
   
+  in =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input;
+  out =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])output;
+
   // Check results
   int nok=0;
   int X_MIN=0, X_MAX=IMAGE_X;
@@ -570,7 +561,6 @@ oclCheckStatus(status,"clEnqueueReadBuffer failed.");
   clReleaseProgram(program);
   clReleaseCommandQueue(commandQueue);
   clReleaseContext(context);
-
   //printf("-> OCL objects released\n");
 
   // Stop the OCL runtime

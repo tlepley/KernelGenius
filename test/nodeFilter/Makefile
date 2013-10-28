@@ -82,7 +82,7 @@ clean :
 
 cleanall : clean
 	@echo "* Removing build directories for all targets"
-	rm -rf build_H*
+	rm -rf build_*
 	rm -rf target
 	rm -rf *~
 

@@ -275,17 +275,31 @@ static int TestGradient(cl_program program) {
 
   
   /* Get back the output buffer from the device memory (blocking read) */
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_float)*2*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
+  output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*2*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
   
   //==================================================================
   // Check results
   //==================================================================
   
-  // Compute result from the reference code
-  update_gradient((float*)check_output,(float*)input,IMAGE_X,IMAGE_Y);  
+  {
+	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    // Compute result from the reference code
+    update_gradient((float*)check_output,(float*)input,IMAGE_X,IMAGE_Y);  
   
+    gettimeofday(&end, NULL);
+    printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
+
+  in =(float (*)[IMAGE_Y][IMAGE_X])input;
+  out =(float (*)[IMAGE_Y][2*IMAGE_X])output;
+
   // Check reference vs OCL
   int nok=0;int first=1;
   for(y=0;y<IMAGE_Y;y++) {

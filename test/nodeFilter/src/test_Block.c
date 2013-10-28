@@ -114,8 +114,8 @@ static int TestGradient(cl_program program) {
   cl_float *check_output = malloc(sizeof(cl_float)*(((IMAGE_Y+3)/4)*2)*(((IMAGE_X+3)/4)*2));
   
   /* For using arrays instead of pointers */
-  cl_float (*in)[IMAGE_Y][IMAGE_X]  	  =(cl_float (*)[IMAGE_Y][IMAGE_X])input;
-  cl_float (*out)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2]	  =(cl_float (*)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2])output;
+  cl_float (*in)[IMAGE_Y][IMAGE_X] =(cl_float (*)[IMAGE_Y][IMAGE_X])input;
+  cl_float (*out)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2]	=(cl_float (*)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2])output;
   cl_float (*check_out)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2] =(cl_float (*)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2])check_output;
   
   /* Create an input buffer */
@@ -183,15 +183,18 @@ static int TestGradient(cl_program program) {
   }
 
   /* Get back the output buffer from the device memory (blocking read) */
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_float)*((IMAGE_X+3)/4)*2*((IMAGE_Y+3)/4)*2,output,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");    
+  output = clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*((IMAGE_X+3)/4)*2*((IMAGE_Y+3)/4)*2,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer failed.");\
   
   //==================================================================
   // Check results
   //==================================================================
   
   {
-    struct timeval start, end;
+	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+
+	struct timeval start, end;
     gettimeofday(&start, NULL);
     
     // Compute result from the reference code
@@ -200,6 +203,9 @@ static int TestGradient(cl_program program) {
     gettimeofday(&end, NULL);
     printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
+
+  in  =(cl_float (*)[IMAGE_Y][IMAGE_X])input;
+  out =(cl_float (*)[((IMAGE_Y+3)/4)*2][((IMAGE_X+3)/4)*2])output;
 
   // Check reference vs OCL
   int nok=0;int first=1;
@@ -432,7 +438,7 @@ int main(int argc, char * argv[]) {
 #ifdef AHEAD_OF_TIME
   cl_program program = createBlockProgramFromBinary(context,device);
 #else
-  cl_program program = createBlockProgramFromSource(context,device,NULL)
+  cl_program program = createBlockProgramFromSource(context,device,NULL);
 #endif
   
   //==================================================================

@@ -256,7 +256,7 @@ int main(int argc, char * argv[]) {
   // OpenCL setup
   //==================================================================
   
-  printf("-> OpenCL host setup\n");
+  //printf("-> OpenCL host setup\n");
   
   /* Get the first OpenCL platform and print some infos */
   cl_platform_id platform = oclGetFirstPlatform();
@@ -266,15 +266,15 @@ int main(int argc, char * argv[]) {
   cl_device_id device = oclGetFirstDevice(platform);
   
   /* Create context */
-  printf("-> Create context\n");
+  //printf("-> Create context\n");
   cl_context context = oclCreateContext(platform,device);
   
   /* Create a command Queue  */
-  printf("-> Create command Queue\n");
+  //printf("-> Create command Queue\n");
   cl_command_queue commandQueue = oclCreateCommandQueue(context, device);
   
   
-  printf("-> Create CL Program\n");
+  //printf("-> Create CL Program\n");
   /* Create and compile the CL program */
 #ifdef AHEAD_OF_TIME
   /* create a CL program using the kernel binary */
@@ -294,7 +294,7 @@ int main(int argc, char * argv[]) {
   //==================================================================
   // Create the kernel, configure it and prepare input data
   //==================================================================
-  printf("-> Create Input/Output Buffer\n");
+  //printf("-> Create Input/Output Buffer\n");
   /* Create an input/output buffers mapped in the host address space */
   cl_mem inputBuffer0,inputBuffer1,outputBuffer;
   DATA_TYPE *input0 = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&inputBuffer0);
@@ -330,12 +330,12 @@ int main(int argc, char * argv[]) {
 
   
   /* Get a kernel object */
-  printf("-> Create Kernel\n");
+  //printf("-> Create Kernel\n");
   cl_kernel kernel = createKernel_Operation(program);
   
   
   /* Set Kernel arguments */
-  printf("-> Sets Kernel Args\n");
+  //printf("-> Sets Kernel Args\n");
   setKernelArgs_Operation(kernel,
 			  NB_WG0, NB_WG1, NB_WI,
 			  outputBuffer,					  
@@ -363,7 +363,6 @@ int main(int argc, char * argv[]) {
 
   cl_int status;
 
-  printf("-> Check NDRange\n");
   /* Check intrinsec kernel and NDRange copatibility with the device */
   checkNDRangeWithDevice(device,kernel,2,globalThreads,localThreads);
 
@@ -410,10 +409,9 @@ int main(int argc, char * argv[]) {
   
   
   /* Get back the output buffer from the device memory (blocking read) */
-printf("-> Start read buffers\n");
   output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
   oclCheckStatus(status,"clEnqueueReadBuffer failed.");\
-  printf("-> Read buffers\n");
+  //printf("-> Read buffers\n");
 
 
   //==================================================================
@@ -430,15 +428,12 @@ printf("-> Start read buffers\n");
     gettimeofday(&start, NULL);
     
     // Compute reference data
-    printf("-> Start computing ref\n");
     computeImage(check_output,input0,input1,IMAGE_X,IMAGE_Y);
-    printf("-> Computed ref\n");
+    //printf("-> Computed ref\n");
 
     gettimeofday(&end, NULL);
     printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
   }
-
-  printf("-> Start checking results\n");
   
    in0 =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input0;
    in1 =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input1;
