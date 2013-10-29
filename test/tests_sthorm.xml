@@ -1,4 +1,4 @@
-<testset name="Kernel Genius testsuite dor the POSIX STHORM simulator">
+<testset name="Kernel Genius testsuite for the POSIX STHORM simulator">
   <testset name="Basic Operations"	file="basicOperations/tests_sthorm.xml"/>
   <testset name="node Operator" 	file="nodeOperator/tests_sthorm.xml"/>
   <testset name="node Convolution"	file="nodeConvolution/tests_sthorm.xml"/>
