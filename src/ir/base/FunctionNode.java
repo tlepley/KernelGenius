@@ -852,7 +852,56 @@ public abstract class FunctionNode extends KernelData {
     }
   }
 
+  public void generateCImageComputeFunctionBody(
+	      PrintStream ps) {
+	 
+	    MatrixIndexes dataIterationSpace=getFirstInputEdge().getSourceData().getMatrixType();
 
+	    // Notes: should receive a circular buffer
+	    //        considers a 1D-Range
+
+	    // OpenCL variables declarations
+	    CLGenVarNames.generateLocalInfoVarDeclaration(0,ps,"  ");
+	    ps.println();
+	      
+	    // Skip begin and end management
+	    if (isSkipOrUndef()) {
+	      generateSkipBeginVarDeclarationBlock(dataIterationSpace,0,ps,"  ");
+	    }
+	    // Border management: Consider readPatternUnion instead of SkipPattern
+	    generateSkipEndVarDeclarationBlock(dataIterationSpace,0,true,ps,"  ");
+	    ps.println();
+
+	    // Compute loop counters
+	    generateLoopCounterDeclaration(ps,"  ");
+	    ps.println();
+	    
+	    // Variables to compute indexes
+	    boolean flag=false;
+	    for(DataEdge ed:getInputEdgeList()) {
+	      if (ed.getBorderMode().isConstValue()) {
+	        flag=true; break;
+	      }
+	    }
+	    if (flag) {
+	      CLGenVarNames.generateIndexDeclaration(0,ps,"  ");
+	      CLGenVarNames.generateIndexDeclaration(1,ps,"  ");
+	    }
+
+	    List<Integer> firstIndex=new LinkedList<Integer>();
+	    List<Integer> lastIndex=new LinkedList<Integer>();
+	    List<String> lastIndexStringPlusOne=new LinkedList<String>();
+
+	    int n=dataIterationSpace.getNbDims();
+	    if (n>1) {
+	      generateComputeFunctionBodyN(dataIterationSpace, n-1,firstIndex,lastIndex,lastIndexStringPlusOne, ps, "  ");
+	    }
+	    else {
+	      generateComputeFunctionBodyFinal(dataIterationSpace, n-1,firstIndex,lastIndex,lastIndexStringPlusOne, ps, "  ");
+	    }
+	  }
+
+  
   protected void generateComputeFunctionBodyN(
       MatrixIndexes dataFullIterationSpaceInput,
       int n, 

@@ -202,7 +202,7 @@ KGEN_COMMAND="$JAVACMD -classpath ${KGEN_CLASSPATH} ${LAUNCHER} --install_dir ${
 
 # Some verbosing
 #echo $KGEN_CLASSPATH
-#echo $KGEN_COMMAND
+echo $KGEN_COMMAND
 
 # Command execution
 exec $KGEN_COMMAND
