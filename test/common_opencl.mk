@@ -46,7 +46,7 @@ RUN_ARGS_TEST = -x $(SIZE_X) -y $(SIZE_Y) -wi $(WI) -wg0 $(WG0) -wg1 $(WG1)
 BUILD_DIR = build
 
 # C flags for OpenCL kernels
-CLCFLAGS ?= -O2 -g -Wall
+CLCFLAGS ?= 
 
 # Arguments to pass to the executable
 RUN_ARGS ?=
@@ -97,8 +97,8 @@ KERNELS_SRCSBIN   := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 ##########################################################
 
 # Compilation options
-HOST_CFLAGS += -Wall $(CLAM_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir)) -I. -I..
-HOST_LDFLAGS += -Wall $(CLAM_LDFLAGS)
+HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir)) -I. -I..
+HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS)
 
 # Source & objects
 SRCS = $(SRC_DIR)/test_$(APP_NAME).c $(PROGRAM_NAME).c
@@ -125,7 +125,7 @@ else
 build:: $(KERNELS_SRCSBIN)
 endif
 
-build:: $(EXEC) 
+build:: $(EXEC)
 
 # Implicit rules
 .PHONY: all build clean test package run
@@ -143,7 +143,11 @@ $(PLT_BUILD_DIR)/gen/%.o: %.c
 $(PLT_BUILD_DIR)/%.so: %.cl
 	echo "--- Compiling OpenCL kernels in $<"
 	mkdir -p $(PLT_BUILD_DIR)
-	$(CLCOMPILER) $(CLCFLAGS) -o $@ -- $<
+ifeq ($(DEVICE_TYPE),cpu_intel)
+	$(CLCOMPILER) $(CLCFLAGS)  $(CLCOMPILER_IN)$< $(CLCOMPILER_OUT)$@
+else
+	$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_OUT) $@ $(CLCOMPILER_IN) $<
+endif
 
 $(PLT_BUILD_DIR)/%.cl: %.cl
 	echo "--- Copying OpenCL kernels in $<"
@@ -156,7 +160,7 @@ $(PLT_BUILD_DIR)/%.cl: %.cl
 ##########################################################
 
 ifdef P2012_FABRIC
-# This is the P2012 device
+# This is the STHORM device
 CMD_EXEC = p12run $(P12RUN_OPT) --test=$(PLT_BUILD_DIR) --cmd="./$(notdir $(EXEC)) $(RUN_ARGS) $(RUN_ARGS_TEST)"
 CMD_EXEC_DEBUG = $(CMD_EXEC) --gdb=clgdb
 

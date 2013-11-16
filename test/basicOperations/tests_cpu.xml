@@ -4,50 +4,71 @@
 <testset name="CPU">
 
   <test name="AbsDiff">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Add">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="EuclideanNorm">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
  </test>
 
   <test name="Min">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Max">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationMax.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Mult">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Sub">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Sobel Multiple Kernels">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 

@@ -3,20 +3,29 @@
 
 <testset name="CPU">
   <test name="Threshold">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
   </test>
 
   <test name="Threshold2">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
   </test>
 
   <test name="ImageConversion">
-    <config name="posix">
+    <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
   </test>
 
