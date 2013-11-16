@@ -33,4 +33,4 @@ RUN_ARGS = -operation Mult
 KGFLAGS = -DOPERATION=Mult
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

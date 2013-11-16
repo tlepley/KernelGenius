@@ -77,5 +77,7 @@ KG_COMPILATION_CMD = $(KGCOMPILER) $(KGFLAGS) $(KG_OPT) -o $(PROGRAM_NAME)
 ##########################################################
 
 # Include the generic kernel test makefile
-include ../common_opencl.mk
+include $(KERNELGENIUS_DIR)/test/make/common_opencl.mk
+
+
 

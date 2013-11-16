@@ -24,4 +24,4 @@ RUN_ARGS = -border mirror
 KGFLAGS = -O1 -DBORDER_MODE=mirror
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

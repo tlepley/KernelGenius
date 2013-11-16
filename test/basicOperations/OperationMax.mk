@@ -33,4 +33,4 @@ RUN_ARGS = -operation Max
 KGFLAGS = -DOPERATION=Max
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

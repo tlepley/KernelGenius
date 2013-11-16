@@ -23,4 +23,4 @@ RUN_ARGS = -border duplicate
 KGFLAGS = -DBORDER_MODE=duplicate
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

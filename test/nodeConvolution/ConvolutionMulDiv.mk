@@ -38,4 +38,4 @@ RUN_ARGS = -mul 2.04f -div -1.82f -border $(BORDER)
 
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

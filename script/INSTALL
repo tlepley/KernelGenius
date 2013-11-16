@@ -121,6 +121,14 @@ mkdir -p "$KGENIUS_INSTALL_DIR"
 mkdir "$KGENIUS_INSTALL_DIR"/jar
 cp jar/*.jar "$KGENIUS_INSTALL_DIR"/jar/
 
+# runtime directory
+mkdir -p "$KGENIUS_INSTALL_DIR"/runtime/include
+cp runtime/include/*.h "$KGENIUS_INSTALL_DIR"/runtime/include
+mkdir -p "$KGENIUS_INSTALL_DIR"/runtime/lib
+cp runtime/lib/*.so "$KGENIUS_INSTALL_DIR"/runtime/lib
+
+
+
 git clone . "$KGENIUS_CLONE_DIR"
 
 # Examples
@@ -128,17 +136,23 @@ cp -R "$KGENIUS_CLONE_DIR"/examples "$KGENIUS_INSTALL_DIR"/
 rm -f "$KGENIUS_INSTALL_DIR"/examples/*.xml
 # target configuration files
 cp -R "$KGENIUS_CLONE_DIR"/targets "$KGENIUS_INSTALL_DIR"/
+
 # docs
 cp -R "$KGENIUS_CLONE_DIR"/doc "$KGENIUS_INSTALL_DIR"/
+
 # bin directory
 cp -R "$KGENIUS_CLONE_DIR"/bin "$KGENIUS_INSTALL_DIR"/
+
 # bin directory
 cp "$KGENIUS_CLONE_DIR"/lib/*.jar "$KGENIUS_INSTALL_DIR"/jar/
+
 # licenses
 cp "$KGENIUS_CLONE_DIR"/LICENSE.txt "$KGENIUS_INSTALL_DIR"/
 cp -R "$KGENIUS_CLONE_DIR"/licenses "$KGENIUS_INSTALL_DIR"/
+
 # setup
 cp "$KGENIUS_CLONE_DIR"/setup.sh "$KGENIUS_INSTALL_DIR"/
+
 # Other files
 cp "$KGENIUS_CLONE_DIR"/script/README_USER.txt "$KGENIUS_INSTALL_DIR"/README.txt
 cp "$KGENIUS_CLONE_DIR"/script/CHANGELOG.txt "$KGENIUS_INSTALL_DIR"/

@@ -39,4 +39,4 @@ RUN_ARGS = -border1 $(BORDER1) -border2 $(BORDER2) -window1 $(WINDOW1) -window2 
 KGFLAGS = -DBORDER1=$(BORDER1) -DWINDOW1=$(WINDOW1) -DBORDER2=$(BORDER2) -DWINDOW2=$(WINDOW2)
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

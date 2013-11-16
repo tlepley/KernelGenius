@@ -21,22 +21,28 @@
   Authors: Thierry Lepley
 */
 
-#ifndef COMMON_OCL_H
-#define COMMON_OCL_H
 
 #include <stdio.h>
 #include <string.h>
 
-static void oclCheckStatus(cl_int status, char *message);
+#include "kg_ocl_runtime.h"
+#include <CL/cl.h>
+
+#include <stdio.h>
+#include <string.h>
+
+
+
+void oclCheckStatus(cl_int status, char *message);
 
 //=====================================================================================
 //OpenCL context and base OpenCL objects
 //=====================================================================================
 
 /**
- * Get the first OpenCL platform of the OpenCL infrastructue
+ * Get the first OpenCL platform of the OpenCL infrastructure
  */
-static cl_platform_id oclGetFirstPlatform() {
+cl_platform_id oclGetFirstPlatform() {
   cl_int status;
 
   /* Look available platforms */
@@ -58,7 +64,7 @@ static cl_platform_id oclGetFirstPlatform() {
 /**
  * Get the first device of a platform
  */
-static cl_device_id oclGetFirstDevice(cl_platform_id platform) {
+cl_device_id oclGetFirstDevice(cl_platform_id platform) {
   cl_int status;
   cl_device_id device;
   
@@ -84,7 +90,7 @@ static cl_device_id oclGetFirstDevice(cl_platform_id platform) {
 /**
  * Create an OpenCL context for a given platform/device
  */
-static cl_context oclCreateContext(cl_platform_id platform,
+cl_context oclCreateContext(cl_platform_id platform,
 			    cl_device_id device) {
   cl_context context;
   cl_int status;
@@ -104,7 +110,7 @@ static cl_context oclCreateContext(cl_platform_id platform,
 /**
  * Create an in-order command queue for a given device in a context
  */
-static cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id device) {
+cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id device) {
   cl_int status;
   cl_command_queue commandQueue =
     clCreateCommandQueue(context, 
@@ -118,7 +124,7 @@ static cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id d
 /**
  * Create an out-of-order command queue for a given device in a context
  */
-static cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id device) {
+cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id device) {
   cl_int status;
   cl_command_queue commandQueue =
     clCreateCommandQueue(context, 
@@ -129,7 +135,7 @@ static cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_i
   return commandQueue;
 }
 
-static void * oclCreateMapBuffer(cl_context context,
+void * oclCreateMapBuffer(cl_context context,
 		cl_command_queue queue,
 		cl_mem_flags create_flags,
 		cl_mem_flags map_flags,
@@ -169,7 +175,7 @@ static void * oclCreateMapBuffer(cl_context context,
 /**
  * Read a kernel source from a file
  */
-static char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
+char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
 	FILE *file;
 
 	char Path[INTERN_BUF_SIZE];
@@ -204,7 +210,7 @@ static char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
 /**
  * Read a kernel binary from a file
  */
-static unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *sizeFile) {
+unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *sizeFile) {
 	FILE *file;
 
 	char Path[INTERN_BUF_SIZE];
@@ -238,7 +244,7 @@ static unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *siz
 /**
  * Read and build an OpenCL program from a source file
  */
-static cl_program oclCreateProgramFromSource(cl_context context, cl_device_id device,
+cl_program oclCreateProgramFromSource(cl_context context, cl_device_id device,
 		const char *filename, const char *options) {
 	// Read the program from the file
 	size_t sourceSize;
@@ -271,7 +277,7 @@ static cl_program oclCreateProgramFromSource(cl_context context, cl_device_id de
 /**
  * Read and build an OpenCL program from a binary file
  */
-static cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id device,
+cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id device,
 		const char *filename) {
 	// Read the program from the file
 	size_t length;
@@ -314,7 +320,7 @@ static cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id de
  * Get the program path from the environment if possible. The OCL_APP_BUILD variable
  * is usually set by the Eclipse OpenCL Wizard plugin
  */
-static char *oclGetProgramPath(char *path, char *name, size_t path_size) {
+char *oclGetProgramPath(char *path, char *name, size_t path_size) {
 	char *base = getenv("OCL_APP_BUILD");
 	if (base != NULL) {
 		// Use base path specified in environment variable
@@ -336,7 +342,7 @@ static char *oclGetProgramPath(char *path, char *name, size_t path_size) {
  *
  * @param platform_id Identifier of the platform
  */
-static void oclDisplayPlatformInfo(cl_platform_id platform_id) {
+void oclDisplayPlatformInfo(cl_platform_id platform_id) {
 	cl_int status;
 	char buffer[100];
 
@@ -361,7 +367,7 @@ static void oclDisplayPlatformInfo(cl_platform_id platform_id) {
 /**
  * Check if a kernel NDRange structure is compatible with a device
  */
-static void checkNDRangeWithDevice(cl_device_id device,
+void checkNDRangeWithDevice(cl_device_id device,
 			    cl_kernel kernel,
 			    int nb_dim,
 			    const size_t globalThreads[],
@@ -453,13 +459,12 @@ static void checkNDRangeWithDevice(cl_device_id device,
 }
 
 
-
 /**
  * Check the status returned by an OpenCL API function. In case of error,
  * print the message passed in parameter, print the error related to the status
  * and exit the program
  */
-static void oclCheckStatus(cl_int status, char *message) {
+void oclCheckStatus(cl_int status, char *message) {
   if (status!=CL_SUCCESS) {
     fprintf(stderr,"%s\n",message);
     switch( status ){
@@ -617,7 +622,4 @@ static void oclCheckStatus(cl_int status, char *message) {
   }
 }
 
-
-
-#endif
 

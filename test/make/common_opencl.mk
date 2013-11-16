@@ -36,27 +36,17 @@ SIZE_Y ?= 480
 
 RUN_ARGS_TEST = -x $(SIZE_X) -y $(SIZE_Y) -wi $(WI) -wg0 $(WG0) -wg1 $(WG1)
 
-
 ##########################################################
-# The following variables can be redefined in the parent 
-# makefile which includes this rule file
+# Directories
 ##########################################################
 
-# Build directory for all objects and executables, used as a prefix
+# Absolute paths
+RUNTIME_DIR= $(KERNELGENIUS_DIR)/runtime
+TEST_DIR= $(KERNELGENIUS_DIR)/test
+MAKE_DIR= $(TEST_DIR)/make
+
+# Relative path
 BUILD_DIR = build
-
-# C flags for OpenCL kernels
-CLCFLAGS ?= 
-
-# Arguments to pass to the executable
-RUN_ARGS ?=
-
-# Compilation flags for the host code
-HOST_CFLAGS  ?= -O2 -g
-HOST_LDFLAGS ?=
-
-# Library containing all the host objects (optional)
-HOST_LIB_NAME ?= lib$(APP_NAME)_OCL
 
 
 ##########################################################
@@ -65,13 +55,14 @@ HOST_LIB_NAME ?= lib$(APP_NAME)_OCL
 
 # Include the generic kernel test makefile
 ifeq ($(DEVICE_TYPE),cpu_intel)
-include ../cpu_intel.mk
+include $(MAKE_DIR)/cpu_intel.mk
 else ifeq ($(DEVICE_TYPE),gpu_nvidia)
-include ../gpu_nvidia.mk
+include $(MAKE_DIR)/gpu_nvidia.mk
 else ifeq ($(DEVICE_TYPE),sthorm)
-include ../sthorm.mk
+include $(MAKE_DIR)/sthorm.mk
 else
-$(error DEVICE_TYPE is not defined)
+$(warning DEVICE_TYPE is not defined, taking cpu_intel)
+include $(MAKE_DIR)/cpu_intel.mk
 endif
 
 
@@ -89,7 +80,7 @@ endif
 # Find all kernels
 KERNELS_SRCS  := $(PROGRAM_NAME).cl
 KERNELS_BIN   := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).so
-KERNELS_SRCSBIN   := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
+KERNELS_SRCSBIN := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 
 
 ##########################################################
@@ -132,16 +123,11 @@ build:: $(EXEC)
 .SUFFIXES: .so .cl .o
 
 $(PROGRAM_NAME).cl $(PROGRAM_NAME).c $(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
-	@echo "--- Compiling KernelGenius file $<"
+	echo "--- Compiling KernelGenius file $<"
 	$(KG_COMPILATION_CMD) $<
 
-$(PLT_BUILD_DIR)/gen/%.o: %.c
-	echo "--- Compiling '$<'"
-	mkdir -p $(PLT_BUILD_DIR)/gen
-	$(HOST_CC) $(HOST_CFLAGS) -c $< -o $@
-
 $(PLT_BUILD_DIR)/%.so: %.cl
-	echo "--- Compiling OpenCL kernels in $<"
+	@echo "--- Compiling OpenCL kernels in $<"
 	mkdir -p $(PLT_BUILD_DIR)
 ifeq ($(DEVICE_TYPE),cpu_intel)
 	$(CLCOMPILER) $(CLCFLAGS)  $(CLCOMPILER_IN)$< $(CLCOMPILER_OUT)$@
@@ -150,10 +136,19 @@ else
 endif
 
 $(PLT_BUILD_DIR)/%.cl: %.cl
-	echo "--- Copying OpenCL kernels in $<"
+	@echo "--- Copying OpenCL kernels in $<"
 	mkdir -p $(PLT_BUILD_DIR)
 	cp $< $@
-
+	
+$(PLT_BUILD_DIR)/gen/%.o: %.c
+	@echo "--- Compiling '$<'"
+	mkdir -p $(PLT_BUILD_DIR)/gen
+	$(HOST_CC) $(HOST_CFLAGS) -I$(RUNTIME_DIR)/include -c $< -o $@
+	
+$(EXEC): $(OBJS)
+	@echo "--- Linking $@"	
+	$(HOST_CC) $(HOST_CFLAGS) -L$(RUNTIME_DIR)/lib $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS) -lKgOclRuntime
+	
 
 ##########################################################
 # Execution
@@ -170,9 +165,6 @@ CMD_EXEC = cd $(PLT_BUILD_DIR);./$(notdir $(EXEC)) $(RUN_ARGS) $(RUN_ARGS_TEST)
 CMD_EXEC_DEBUG = cd $(PLT_BUILD_DIR);gdb $(EXEC) $(RUN_ARGS) $(RUN_ARGS_TEST)
 endif
 
-$(EXEC): $(OBJS)
-	@echo "--- Linking $@"	
-	$(HOST_CC) $(HOST_CFLAGS)  $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
 
 debug: build
 	$(CMD_EXEC_DEBUG)

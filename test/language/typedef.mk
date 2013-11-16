@@ -30,4 +30,4 @@ KG_SOURCE = typedef
 PROGRAM_NAME = typedef
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

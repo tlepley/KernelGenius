@@ -38,4 +38,4 @@ RUN_ARGS = -border $(BORDER)
 
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

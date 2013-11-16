@@ -1,7 +1,7 @@
 ##################################################################
 #  This file is part of KernelGenius.
 #
-#  Copyright (C) 2013 STMicroelectronics
+#  Copyright (C) 2013 Thierry Lepley
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -19,18 +19,43 @@
 #  Boston, MA 02110-1301 USA.
 ##################################################################
 
-##################################################################
-#   Test for the Min operation
-##################################################################
+HOST_CC = gcc
+HOST_CFLAGS = -O2 -fPIC
+HOST_LDFLAGS = -shared
+
+INC_DIR = include
+INC_DIR_EXTRA = include_extra
+SRC_DIR = src
+LIB_DIR = lib
+BUILD_DIR = build
+
+# Source & objects
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SRCS)))
+LIB = libKgOclRuntime.so
+
+.PHONY: all build clean package run
+
+all:: build
+
+build:: $(LIB_DIR)/$(LIB)
+
+clean::
+	rm -rf $(LIB_DIR) $(BUILD_DIR)
 
 
-# Test configuration
-APP_NAME = Operation
-KG_SOURCE = Operation
-PROGRAM_NAME = Operation
+$(LIB_DIR)/$(LIB): $(OBJS)
+	echo "--- Compiling library $<"
+	mkdir -p $(LIB_DIR)
+	$(HOST_CC) $(HOST_LDFLAGS) -o $@ $<
 
-RUN_ARGS = -operation Min
-KGFLAGS = -DOPERATION=Min
+# Implicit rules
+.SUFFIXES: .so .o .c
 
-# Include the generic kernel test makefile
-include $(KERNELGENIUS_DIR)/test/make/common.mk
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	echo "--- Compiling '$<'"
+	mkdir -p $(BUILD_DIR)
+	$(HOST_CC) $(HOST_CFLAGS) -I$(INC_DIR) -I$(INC_DIR_EXTRA) -c $< -o $@
+
+$(LIB_DIR)/%.so: %.o
+

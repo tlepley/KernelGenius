@@ -31,8 +31,4 @@ export KERNELGENIUS_VER=2013.1
 export KERNELGENIUS_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 export PATH=$KERNELGENIUS_DIR/bin:$KERNELGENIUS_DIR/test/tools/bin:$PATH
-
-
-if [ ! -n "$P2012_PKG_DIR" ]; then
-   echo "WARNING : environment not yet configured for the STHORM sdk"
-fi
+export LD_LIBRARY_PATH=$KERNELGENIUS_DIR/runtime/lib:$LD_LIBRARY_PATH

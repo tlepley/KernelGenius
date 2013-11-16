@@ -33,6 +33,7 @@
   <property name="parser-build" value="${basedir}/parser-build" />
   <property name="java-build" value="${basedir}/build" />
   <property name="out" value="${basedir}/jar" />
+  <property name="runtime-dir" value="${basedir}/runtime" />
 
   <!-- ==================================== -->
   <!-- ========== INITIALIZATION ========== -->
@@ -63,9 +64,17 @@
     </exec>
   </target>
 
+  <target name="runtime.compile"
+	 description="Compile the runtime" >
+	 <exec dir="${runtime-dir}"
+	       executable="make"
+	       taskname="all">
+	 </exec>
+  </target>
+	
   <target name="compile"
           description="Compile the java code"
-          depends="antlr.generate">
+          depends="antlr.generate,runtime.compile">
     <mkdir dir="${java-build}" />
     <javac destdir="${java-build}" debug="on" target="1.6">
       <classpath refid="classpath" />
@@ -109,7 +118,7 @@
 
   <target name="clean"
           description="Removes generated files"
-          depends="clean_parser,clean_jar" >
+          depends="clean_parser,clean_jar,clean_runtime" >
     <delete dir="${java-build}" />
   </target>
 	
@@ -122,6 +131,13 @@
       <arg value="GENDIR=${parser-build}/parser" />
    </exec>
 	<delete dir="${parser-build}" />
+  </target>
+	
+  <target name="clean_runtime"
+		description="Removes jar files">
+	    <exec dir="${runtime-dir}" executable="make" failonerror="true">
+	      <arg value="clean" />
+	   </exec>
   </target>
 		
   <!-- For eclipse: final jar only cleaning -->

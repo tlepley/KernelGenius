@@ -30,7 +30,7 @@
 #include <math.h>
 
 #include <CL/cl.h>
-#include <common_ocl.h>
+#include "kg_ocl_runtime.h"
 
 #include <ImageConversion.h>
 

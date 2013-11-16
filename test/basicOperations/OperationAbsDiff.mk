@@ -32,4 +32,4 @@ RUN_ARGS = -operation AbsDiff
 KGFLAGS = -DOPERATION=AbsDiff
 
 # Include the generic kernel test makefile
-include ../common.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk
