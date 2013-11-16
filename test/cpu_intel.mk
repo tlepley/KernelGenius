@@ -1,0 +1,8 @@
+INTEL_OCL_INSTALL_DIR = /opt/intel/opencl/
+
+HOST_CC = gcc
+
+CLAM_CFLAGS += -I$(INTEL_OCL_INSTALL_DIR)/include
+CLAM_LDFLAGS += -L$(INTEL_OCL_INSTALL_DIR)/lib64 -lOpenCL
+
+PLT_BUILD_DIR = $(BUILD_DIR)_cpu_intel

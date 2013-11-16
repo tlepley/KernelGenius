@@ -297,17 +297,6 @@ int main(int argc, char * argv[]) {
   output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(YUV)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
   oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
-  
-  //==================================================================
-  // End of the Host application, release now useless OpenCL objects
-  //==================================================================
-  
-  clReleaseEvent(event);
-  clReleaseKernel(kernel);
-  clReleaseProgram(program);
-  clReleaseCommandQueue(commandQueue);
-  clReleaseContext(context);
-  //printf("-> OCL objects released\n");
   printf("** OpenCL 'ImageConversion' has completed. ** \n\n");
 
 
@@ -409,11 +398,14 @@ int main(int argc, char * argv[]) {
   // Termination
   //==================================================================
 
-  // Release mapped buffer
   clReleaseMemObject(inputBuffer);
   clReleaseMemObject(outputBuffer);
-
-  //printf("** OCL buffers released. **\n");
+  clReleaseEvent(event);
+  clReleaseKernel(kernel);
+  clReleaseProgram(program);
+  clReleaseCommandQueue(commandQueue);
+  clReleaseContext(context);
+  //printf("-> OCL objects released\n");
 
   // Stop the OCL runtime
 #ifdef __P2012__

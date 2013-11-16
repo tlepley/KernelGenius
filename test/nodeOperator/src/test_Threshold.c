@@ -325,18 +325,7 @@ int main(int argc, char * argv[]) {
   output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
   oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
-  
-  //==================================================================
-  // End of the Host application, release now useless OpenCL objects
-  //==================================================================
-  
-  clReleaseEvent(event);
-  clReleaseKernel(kernel);
-  clReleaseProgram(program);
-  clReleaseCommandQueue(commandQueue);
-  clReleaseContext(context);
-  //printf("-> OCL objects released\n");
-  printf("** OpenCL 'Operation' has completed. ** \n\n");
+  printf("** OpenCL 'Threshold' has completed. ** \n\n");
 
 
   //==================================================================
@@ -344,8 +333,8 @@ int main(int argc, char * argv[]) {
   //==================================================================
 
   {
-	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
-	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+    oclCheckStatus(status,"clEnqueueMapBuffer input failed.");	\
  
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -422,12 +411,16 @@ int main(int argc, char * argv[]) {
   //==================================================================
   // Termination
   //==================================================================
-
-  // Release mapped buffer
+  
   clReleaseMemObject(inputBuffer);
   clReleaseMemObject(outputBuffer);
+  clReleaseEvent(event);
+  clReleaseKernel(kernel);
+  clReleaseProgram(program);
+  clReleaseCommandQueue(commandQueue);
+  clReleaseContext(context);
+  //printf("-> OCL objects released\n");
 
-  //printf("** OCL buffers released. **\n");
 
   // Stop the OCL runtime
 #ifdef __P2012__

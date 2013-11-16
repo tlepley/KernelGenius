@@ -1,0 +1,7 @@
+<testset name="KernelGenius testsuite for CPU">
+  <testset name="Basic Operations"	file="basicOperations/tests_cpu.xml"/>
+  <testset name="node Operator" 	file="nodeOperator/tests_cpu.xml"/>
+  <testset name="node Convolution"	file="nodeConvolution/tests_cpu.xml"/>
+  <testset name="node Filter"		file="nodeFilter/tests_cpu.xml"/>
+  <testset name="graph construct"	file="graph/tests_cpu.xml"/>
+</testset>

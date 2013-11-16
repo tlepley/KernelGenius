@@ -63,12 +63,24 @@ HOST_LIB_NAME ?= lib$(APP_NAME)_OCL
 # Target architecture configuration
 ##########################################################
 
-ifndef CLAM_PKG
-$(error CLAM_PKG is not defined)
+# Include the generic kernel test makefile
+ifeq ($(DEVICE_TYPE),cpu_intel)
+include ../cpu_intel.mk
+else ifeq ($(DEVICE_TYPE),gpu_nvidia)
+include ../gpu_nvidia.mk
+else ifeq ($(DEVICE_TYPE),sthorm)
+include ../sthorm.mk
+else
+$(error DEVICE_TYPE is not defined)
 endif
 
-include $(CLAM_PKG)/rules/targets.mk
 
+# Check target configuration and user options
+ifndef CLCOMPILER
+ifndef ONLINE_CL_COMPILATION
+$(error offline CL compilation not supported)
+endif
+endif
 
 ##########################################################
 # Kernels configuration
@@ -78,15 +90,6 @@ include $(CLAM_PKG)/rules/targets.mk
 KERNELS_SRCS  := $(PROGRAM_NAME).cl
 KERNELS_BIN   := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).so
 KERNELS_SRCSBIN   := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
-
-CLAMC = $(CLAM_PKG)/bin/clamc
-
-# OpenCL compilation
-CLCFLAGS += -target_device $(TARGET_DEVICE)
-
-ifdef CLAM_KERNELFLAGS
-CLCFLAGS += $(CLAM_KERNELFLAGS)
-endif
 
 
 ##########################################################
@@ -111,7 +114,6 @@ VPATH = $(SRC_DIR) .
 # Final executables
 EXEC := $(PLT_BUILD_DIR)/test_$(APP_NAME)
 
-
 # First target, can be extended in the parent makefile
 all:: build
 
@@ -134,18 +136,18 @@ $(PROGRAM_NAME).cl $(PROGRAM_NAME).c $(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
 	$(KG_COMPILATION_CMD) $<
 
 $(PLT_BUILD_DIR)/gen/%.o: %.c
-	@mkdir -p $(PLT_BUILD_DIR)/gen
-	@echo "--- Compiling '$<'"
+	echo "--- Compiling '$<'"
+	mkdir -p $(PLT_BUILD_DIR)/gen
 	$(HOST_CC) $(HOST_CFLAGS) -c $< -o $@
 
 $(PLT_BUILD_DIR)/%.so: %.cl
-	@mkdir -p $(PLT_BUILD_DIR)
-	@echo "--- Compiling OpenCL kernels in $<"
-	$(CLAMC) $(CLCFLAGS) -o $@ -- $<
-	
+	echo "--- Compiling OpenCL kernels in $<"
+	mkdir -p $(PLT_BUILD_DIR)
+	$(CLCOMPILER) $(CLCFLAGS) -o $@ -- $<
+
 $(PLT_BUILD_DIR)/%.cl: %.cl
-	@mkdir -p $(PLT_BUILD_DIR)
-	@echo "--- Copying OpenCL kernels in $<"
+	echo "--- Copying OpenCL kernels in $<"
+	mkdir -p $(PLT_BUILD_DIR)
 	cp $< $@
 
 
@@ -155,22 +157,18 @@ $(PLT_BUILD_DIR)/%.cl: %.cl
 
 ifdef P2012_FABRIC
 # This is the P2012 device
-ifeq "$(RUN_ARGS)" ""
-CMD_EXEC = p12run $(P12RUN_OPT) --test=$(PLT_BUILD_DIR) --cmd="./$(notdir $(EXEC)) $(RUN_ARGS_TEST)"
-else
 CMD_EXEC = p12run $(P12RUN_OPT) --test=$(PLT_BUILD_DIR) --cmd="./$(notdir $(EXEC)) $(RUN_ARGS) $(RUN_ARGS_TEST)"
-endif
 CMD_EXEC_DEBUG = $(CMD_EXEC) --gdb=clgdb
 
 else
-# This is an other device (GPU)
+# This is an other device (GPU, CPU)
 CMD_EXEC = cd $(PLT_BUILD_DIR);./$(notdir $(EXEC)) $(RUN_ARGS) $(RUN_ARGS_TEST)
 CMD_EXEC_DEBUG = cd $(PLT_BUILD_DIR);gdb $(EXEC) $(RUN_ARGS) $(RUN_ARGS_TEST)
 endif
 
 $(EXEC): $(OBJS)
 	@echo "--- Linking $@"	
-	$(HOST_CC) $(HOST_CFLAGS) $(HOST_LDFLAGS) $(RUNPTH) $^ -o $@
+	$(HOST_CC) $(HOST_CFLAGS)  $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
 
 debug: build
 	$(CMD_EXEC_DEBUG)
@@ -190,5 +188,4 @@ clean::
 	rm -rf $(PROGRAM_NAME).c $(PROGRAM_NAME).cl $(PROGRAM_NAME).h
 	rm -f $(KERNELS_BIN)
 	rm -f $(KERNELS_SRCSBIN)
-
 

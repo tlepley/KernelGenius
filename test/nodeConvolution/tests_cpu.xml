@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="Convolution node">
+
+<testset name="CPU">
+
+  <test name="Convolution 5x5 (Const value border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Convolution.mk BORDER=12 WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 (Duplicate border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Convolution.mk BORDER=duplicate WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 (Mirror border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Convolution.mk BORDER=mirror WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 (Skip border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Convolution.mk BORDER=skip WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 (Undef border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Convolution.mk BORDER=undef WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Convolution 5x5 asymetrical (Const value border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionAsym.mk BORDER=52 WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 asymetrical (Duplicate border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionAsym.mk BORDER=duplicate WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 asymetrical (Mirror border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionAsym.mk BORDER=mirror WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 asymetrical (Skip border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionAsym.mk BORDER=skip WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+  <test name="Convolution 5x5 asymetrical (Undef border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionAsym.mk BORDER=undef WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Convolution 5x5 with holes (Undef border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionHoles.mk BORDER=undef WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Convolution 5x5 with multiplier/divider (Default border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionMulDiv.mk WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Convolution 7x7 1D horizontal (Default border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionX.mk WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+
+  <test name="Convolution 7x7 1D vertical (Default border)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f ConvolutionY.mk WG0=37 WG1=17 SIZE_X=221 SIZE_Y=113 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+</testset>

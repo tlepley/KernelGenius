@@ -367,7 +367,7 @@ int main(int argc, char * argv[]) {
   checkNDRangeWithDevice(device,kernel,2,globalThreads,localThreads);
 
   /* Synchronize buffers betzeen host and device*/
-  printf("-> Synchro buffers\n");
+  //printf("-> Synchro buffers\n");
   cl_event unmap_event[3];
   status=clEnqueueUnmapMemObject(commandQueue,inputBuffer0,input0,0,NULL,&unmap_event[0]);
   oclCheckStatus(status,"clEnqueueUnmapMemObject input0 failed.");

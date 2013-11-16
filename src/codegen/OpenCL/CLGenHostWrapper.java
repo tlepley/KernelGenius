@@ -114,7 +114,7 @@ public class CLGenHostWrapper {
     ps.println("// ====================================================================");
     ps.println();
     ps.println("#include <CL/cl.h>");
-    ps.println("#include \"oclUtil.h\"");
+    ps.println("#include \"common_ocl.h\"");
     
     ps.println();
     // Program init functions
@@ -194,7 +194,7 @@ public class CLGenHostWrapper {
     ps.println("// ====================================================================");
     ps.println();
     ps.println("#include <CL/cl.h>");
-    ps.println("#include \"oclUtil.h\"");
+    ps.println("#include \"common_ocl.h\"");
     ps.println();
   
     ps.println();

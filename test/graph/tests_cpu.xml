@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="graph construct">
+
+<testset name="-O0">
+
+  <test name="Sobel (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SobelGraph.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SobelGraph.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution hard-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolution.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolution.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution generic-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolutionGeneric.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolutionGeneric.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Upsampling (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Upsampling.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Upsampling.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DoG (Multi-rate)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f DoG.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f DoG.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+
+<testset name="-O1">
+
+  <test name="Sobel (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SobelGraph.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SobelGraph.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution hard-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution generic-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Upsampling (Graph)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Upsampling.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DoG (Multi-rate)">
+    <config name="posix">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f DoG.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="posix:async">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f DoG.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+</testset>

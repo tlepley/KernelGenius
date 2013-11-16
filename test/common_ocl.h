@@ -24,7 +24,10 @@
 #ifndef COMMON_OCL_H
 #define COMMON_OCL_H
 
-void oclCheckStatus(cl_int status, char *message);
+#include <stdio.h>
+#include <string.h>
+
+static void oclCheckStatus(cl_int status, char *message);
 
 //=====================================================================================
 //OpenCL context and base OpenCL objects
@@ -33,7 +36,7 @@ void oclCheckStatus(cl_int status, char *message);
 /**
  * Get the first OpenCL platform of the OpenCL infrastructue
  */
-cl_platform_id oclGetFirstPlatform() {
+static cl_platform_id oclGetFirstPlatform() {
   cl_int status;
 
   /* Look available platforms */
@@ -55,7 +58,7 @@ cl_platform_id oclGetFirstPlatform() {
 /**
  * Get the first device of a platform
  */
-cl_device_id oclGetFirstDevice(cl_platform_id platform) {
+static cl_device_id oclGetFirstDevice(cl_platform_id platform) {
   cl_int status;
   cl_device_id device;
   
@@ -81,7 +84,7 @@ cl_device_id oclGetFirstDevice(cl_platform_id platform) {
 /**
  * Create an OpenCL context for a given platform/device
  */
-cl_context oclCreateContext(cl_platform_id platform,
+static cl_context oclCreateContext(cl_platform_id platform,
 			    cl_device_id device) {
   cl_context context;
   cl_int status;
@@ -101,7 +104,7 @@ cl_context oclCreateContext(cl_platform_id platform,
 /**
  * Create an in-order command queue for a given device in a context
  */
-cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id device) {
+static cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id device) {
   cl_int status;
   cl_command_queue commandQueue =
     clCreateCommandQueue(context, 
@@ -115,7 +118,7 @@ cl_command_queue oclCreateCommandQueue(cl_context context, cl_device_id device) 
 /**
  * Create an out-of-order command queue for a given device in a context
  */
-cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id device) {
+static cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id device) {
   cl_int status;
   cl_command_queue commandQueue =
     clCreateCommandQueue(context, 
@@ -126,7 +129,7 @@ cl_command_queue oclCreateCommandQueueOOO(cl_context context, cl_device_id devic
   return commandQueue;
 }
 
-void * oclCreateMapBuffer(cl_context context,
+static void * oclCreateMapBuffer(cl_context context,
 		cl_command_queue queue,
 		cl_mem_flags create_flags,
 		cl_mem_flags map_flags,
@@ -166,7 +169,7 @@ void * oclCreateMapBuffer(cl_context context,
 /**
  * Read a kernel source from a file
  */
-char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
+static char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
 	FILE *file;
 
 	char Path[INTERN_BUF_SIZE];
@@ -201,7 +204,7 @@ char *oclGetProgramSrcFromFile(const char *fileName, size_t *sizeFile) {
 /**
  * Read a kernel binary from a file
  */
-unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *sizeFile) {
+static unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *sizeFile) {
 	FILE *file;
 
 	char Path[INTERN_BUF_SIZE];
@@ -235,7 +238,7 @@ unsigned char *oclGetProgramBinFromFile(const char *fileName, size_t *sizeFile) 
 /**
  * Read and build an OpenCL program from a source file
  */
-cl_program oclCreateProgramFromSource(cl_context context, cl_device_id device,
+static cl_program oclCreateProgramFromSource(cl_context context, cl_device_id device,
 		const char *filename, const char *options) {
 	// Read the program from the file
 	size_t sourceSize;
@@ -268,7 +271,7 @@ cl_program oclCreateProgramFromSource(cl_context context, cl_device_id device,
 /**
  * Read and build an OpenCL program from a binary file
  */
-cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id device,
+static cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id device,
 		const char *filename) {
 	// Read the program from the file
 	size_t length;
@@ -311,7 +314,7 @@ cl_program oclCreateProgramFromBinary(cl_context context, cl_device_id device,
  * Get the program path from the environment if possible. The OCL_APP_BUILD variable
  * is usually set by the Eclipse OpenCL Wizard plugin
  */
-char *oclGetProgramPath(char *path, char *name, size_t path_size) {
+static char *oclGetProgramPath(char *path, char *name, size_t path_size) {
 	char *base = getenv("OCL_APP_BUILD");
 	if (base != NULL) {
 		// Use base path specified in environment variable
@@ -333,7 +336,7 @@ char *oclGetProgramPath(char *path, char *name, size_t path_size) {
  *
  * @param platform_id Identifier of the platform
  */
-void oclDisplayPlatformInfo(cl_platform_id platform_id) {
+static void oclDisplayPlatformInfo(cl_platform_id platform_id) {
 	cl_int status;
 	char buffer[100];
 
@@ -358,7 +361,7 @@ void oclDisplayPlatformInfo(cl_platform_id platform_id) {
 /**
  * Check if a kernel NDRange structure is compatible with a device
  */
-void checkNDRangeWithDevice(cl_device_id device,
+static void checkNDRangeWithDevice(cl_device_id device,
 			    cl_kernel kernel,
 			    int nb_dim,
 			    const size_t globalThreads[],
@@ -456,7 +459,7 @@ void checkNDRangeWithDevice(cl_device_id device,
  * print the message passed in parameter, print the error related to the status
  * and exit the program
  */
-void oclCheckStatus(cl_int status, char *message) {
+static void oclCheckStatus(cl_int status, char *message) {
   if (status!=CL_SUCCESS) {
     fprintf(stderr,"%s\n",message);
     switch( status ){
@@ -607,7 +610,7 @@ void oclCheckStatus(cl_int status, char *message) {
       fprintf( stderr, "invalid global work size" );
       break;
     default:
-      fprintf( stderr, "Unknown error" );
+      fprintf( stderr, "Unknown error (%d)", status);
     }
     fprintf(stderr,"\n");
     exit(1);

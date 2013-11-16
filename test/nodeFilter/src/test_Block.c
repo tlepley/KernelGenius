@@ -153,10 +153,12 @@ static int TestGradient(cl_program program) {
   
   
   /* Synchronize buffers between host and device*/
-  cl_event unmap_event;
-  status=clEnqueueUnmapMemObject(commandQueue,inputBuffer,input,0,NULL,&unmap_event);
+  cl_event unmap_event[2];
+  status=clEnqueueUnmapMemObject(commandQueue,inputBuffer,input,0,NULL,&unmap_event[0]);
   oclCheckStatus(status,"clEnqueueUnmapMemObject input failed.");
-  status = clWaitForEvents(1,&unmap_event);
+  status=clEnqueueUnmapMemObject(commandQueue,outputBuffer,output,0,NULL,&unmap_event[1]);
+  oclCheckStatus(status,"clEnqueueUnmapMemObject input failed.");
+  status = clWaitForEvents(2,&unmap_event);
 
 
   /* Enqueue a kernel run call */
@@ -172,7 +174,7 @@ static int TestGradient(cl_program program) {
 				    NULL,  // no offset
 				    globalThreads,
 				    localThreads,
-				    1,&unmap_event,
+				    2,&unmap_event,
 				    &event);
     oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
     status = clWaitForEvents(1, &event);
@@ -191,10 +193,10 @@ static int TestGradient(cl_program program) {
   //==================================================================
   
   {
-	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
-	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+    oclCheckStatus(status,"clEnqueueMapBuffer input failed.");	\
 
-	struct timeval start, end;
+    struct timeval start, end;
     gettimeofday(&start, NULL);
     
     // Compute result from the reference code
@@ -265,10 +267,10 @@ static int TestGradient(cl_program program) {
   // Termination
   //==================================================================
 
-  clReleaseEvent(unmap_event);
   clReleaseEvent(event);
   clReleaseKernel(kernel);
   clReleaseProgram(program);
+
   //printf("-> OCL objects released\n");
 
   if (nok) {
