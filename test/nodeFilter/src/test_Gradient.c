@@ -32,6 +32,7 @@
 
 #include "Gradient.h"
 
+static char * OPENCL_PLT_VENDOR = NULL;
 
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #define ABS(a) ((a)<0?-(a):(a))
@@ -378,6 +379,7 @@ void printUsage(char *s) {
   printf("\
 options :\n\
   -h or --help : display this help\n\
+  -vendor <name> : vendor name\n\
   -x <num> : width of the matrix\n\
   -y <num> : height of the matrix\n\
   -border <mode> : border mode\n\
@@ -395,6 +397,14 @@ void processOptions(int argc, char *argv[]) {
 
     if ((strcmp(argv[i],"-h")==0)||(strcmp(argv[i],"--help")==0)) {
       printUsage(argv[0]);
+    }
+    else if ((strcmp(argv[i],"-vendor")==0)) {
+      if (i==argc-1) {
+	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
+	exit(1);
+      }
+      i++;
+      OPENCL_PLT_VENDOR=argv[i];
     }
     else if ((strcmp(argv[i],"-x")==0)) {
       if (i==argc-1) {
@@ -459,14 +469,33 @@ int main(int argc, char * argv[]) {
   printf("\n");
 
 
-  printf("** OpenCL global setup\n");
+  //==================================================================
+  // OpenCL setup
+  //==================================================================
+  
+  //printf("-> OpenCL host setup\n");
+  
+  /* Get the OpenCL platform and print some infos */
+  if (OPENCL_PLT_VENDOR==NULL) {
+    platform=oclGetFirstPlatform();
+  }
+  else {
+    platform=oclGetFirstPlatformFromVendor(OPENCL_PLT_VENDOR);
+  }
+  oclDisplayPlatformInfo(platform);
+  
+  /* Pickup the first available devices */
+  device = oclGetFirstDevice(platform);
+  //oclDisplayDeviceInfo(device);
+  
+  /* Create context */
+  //printf("-> Create context\n");
+  context = oclCreateContext(platform,device);
+  
+  /* Create a command Queue  */
+  //printf("-> Create command Queue\n");
+  commandQueue = oclCreateCommandQueueOOO(context, device);
 
-  /* OpenCL setup */
-  /* ------------ */
-  platform    = oclGetFirstPlatform();
-  device      = oclGetFirstDevice(platform);
-  context     = oclCreateContext(platform,device);
-  commandQueue= oclCreateCommandQueueOOO(context,device);
 
   //==================================================================
   // Compile the program

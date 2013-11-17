@@ -34,6 +34,8 @@
 
 #include <DynBound.h>
 
+static char * OPENCL_PLT_VENDOR = NULL;
+
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
@@ -121,6 +123,7 @@ void printUsage(char *s) {
   printf("\
 options :\n\
   -h or --help : display this help\n\
+  -vendor <name> : vendor name\n\
   -x <num> : width of the matrix\n\
   -y <num> : height of the matrix\n\
   -border <mode> : border mode\n\
@@ -138,6 +141,14 @@ void processOptions(int argc, char *argv[]) {
 
     if ((strcmp(argv[i],"-h")==0)||(strcmp(argv[i],"--help")==0)) {
       printUsage(argv[0]);
+    }
+    else if ((strcmp(argv[i],"-vendor")==0)) {
+      if (i==argc-1) {
+	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
+	exit(1);
+      }
+      i++;
+      OPENCL_PLT_VENDOR=argv[i];
     }
     else if ((strcmp(argv[i],"-x")==0)) {
       if (i==argc-1) {
@@ -267,8 +278,14 @@ int main(int argc, char * argv[]) {
   
   //printf("-> OpenCL host setup\n");
   
-  /* Get the first OpenCL platform and print some infos */
-  cl_platform_id platform = oclGetFirstPlatform();
+  /* Get the OpenCL platform and print some infos */
+  cl_platform_id platform;
+  if (OPENCL_PLT_VENDOR==NULL) {
+    platform=oclGetFirstPlatform();
+  }
+  else {
+    platform=oclGetFirstPlatformFromVendor(OPENCL_PLT_VENDOR);
+  }
   oclDisplayPlatformInfo(platform);
   
   /* Pickup the first available devices */

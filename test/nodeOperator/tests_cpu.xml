@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <testset name="Operator node">
 
-<testset name="CPU">
+<testset name="Intel">
   <test name="Threshold">
     <config name="online">
       <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_intel -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
@@ -28,7 +28,27 @@
       <command name="exec">make KGCOMPILER=sthormkg DEVICE_TYPE=cpu_intel -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
   </test>
+</testset>
 
+
+<testset name="AMD">
+  <test name="Threshold">
+    <config name="online">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_amd -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+  </test>
+
+  <test name="Threshold2">
+    <config name="online">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_amd -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+  </test>
+
+  <test name="ImageConversion">
+    <config name="online">
+      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=cpu_amd -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+  </test>
 </testset>
 
 </testset>

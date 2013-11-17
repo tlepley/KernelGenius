@@ -31,9 +31,14 @@
 //=====================================================================================
 
 /**
- * Get the first OpenCL platform of the OpenCL infrastructue
+ * Get the first OpenCL platform of the system
  */
 extern cl_platform_id oclGetFirstPlatform();
+
+/**
+ * Get the first OpenCL platform from a particular vendor
+ */
+cl_platform_id oclGetFirstPlatformFromVendor(const char *vendor);
 
 /**
  * Get the first device of a platform

@@ -56,6 +56,8 @@ BUILD_DIR = build
 # Include the generic kernel test makefile
 ifeq ($(DEVICE_TYPE),cpu_intel)
 include $(MAKE_DIR)/cpu_intel.mk
+else ifeq ($(DEVICE_TYPE),cpu_amd)
+include $(MAKE_DIR)/cpu_amd.mk
 else ifeq ($(DEVICE_TYPE),gpu_nvidia)
 include $(MAKE_DIR)/gpu_nvidia.mk
 else ifeq ($(DEVICE_TYPE),sthorm)
@@ -89,7 +91,7 @@ KERNELS_SRCSBIN := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 
 # Compilation options
 HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir)) -I. -I..
-HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS)
+HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS) -lKgOclRuntime -lm
 
 # Source & objects
 SRCS = $(SRC_DIR)/test_$(APP_NAME).c $(PROGRAM_NAME).c
@@ -147,7 +149,7 @@ $(PLT_BUILD_DIR)/gen/%.o: %.c
 	
 $(EXEC): $(OBJS)
 	@echo "--- Linking $@"	
-	$(HOST_CC) $(HOST_CFLAGS) -L$(RUNTIME_DIR)/lib $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS) -lKgOclRuntime
+	$(HOST_CC) $(HOST_CFLAGS) -L$(RUNTIME_DIR)/lib $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
 	
 
 ##########################################################

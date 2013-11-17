@@ -40,7 +40,7 @@ void oclCheckStatus(cl_int status, char *message);
 //=====================================================================================
 
 /**
- * Get the first OpenCL platform of the OpenCL infrastructure
+ * Get the first OpenCL platform of the system
  */
 cl_platform_id oclGetFirstPlatform() {
   cl_int status;
@@ -51,7 +51,7 @@ cl_platform_id oclGetFirstPlatform() {
   cl_platform_id platforms[1];
   status = clGetPlatformIDs(1, platforms, &numPlatforms);
   oclCheckStatus(status,"clGetPlatformIDs failed.");
-  
+
   /* At least one platform must be available */
   if (numPlatforms==0) {
     fprintf(stderr,"No OpenCL platform available");
@@ -60,6 +60,39 @@ cl_platform_id oclGetFirstPlatform() {
   
   return platforms[0];
 }
+
+/**
+ * Get the first OpenCL platform from a particular vendor
+ */
+cl_platform_id oclGetFirstPlatformFromVendor(const char *vendor) {
+  cl_int status;
+
+  /* Look available platforms */
+  /* ------------------------ */
+  cl_uint numPlatforms;
+  cl_platform_id platforms[256];
+  status = clGetPlatformIDs(256, platforms, &numPlatforms);
+  oclCheckStatus(status,"clGetPlatformIDs failed.");
+
+  int i;
+  for(i=0;i<numPlatforms;i++) {
+    char buffer[128];
+    status = clGetPlatformInfo(platforms[i],
+			       CL_PLATFORM_VENDOR,
+			       sizeof(buffer),
+			       buffer,
+			       NULL);
+    oclCheckStatus(status,"clGetPlatformInfo(CL_PLATFORM_VENDOR) failed.");
+    if (strncmp(buffer,vendor,strlen(vendor))==0) {
+      return platforms[i];
+    }
+  }
+
+  /* No platform found for the vendor */
+  fprintf(stderr,"No OpenCL platform available for vendor '%s'",vendor);
+  exit(1);
+}
+
 
 /**
  * Get the first device of a platform
@@ -344,7 +377,7 @@ char *oclGetProgramPath(char *path, char *name, size_t path_size) {
  */
 void oclDisplayPlatformInfo(cl_platform_id platform_id) {
 	cl_int status;
-	char buffer[100];
+	char buffer[128];
 
 	printf("OpenCL Platform, id %p\n", platform_id);
 	status = clGetPlatformInfo(platform_id,
