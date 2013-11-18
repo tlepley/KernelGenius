@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <testset name="predefined Operators">
 
-<!-- ######################################################################### -->
-<!--                               MULTI WORK-GROUP                            -->
-<!-- ######################################################################### -->
-
-<testset name="Multi-cluster">
-
   <test name="AbsDiff">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -17,11 +17,23 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
   </test>
 
   <test name="EuclideanNorm">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
  </test>
 
@@ -29,11 +41,23 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
   </test>
 
   <test name="Max">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationMax.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationMax.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationMax.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -41,11 +65,23 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
   </test>
 
   <test name="Sub">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -53,8 +89,12 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
   </test>
-
-</testset>
 
 </testset>

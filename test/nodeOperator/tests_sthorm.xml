@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <testset name="Operator node">
 
-<!-- ######################################################################### -->
-<!--                               MULTI WORK-GROUP                            -->
-<!-- ######################################################################### -->
-
-<testset name="Multi-cluster">
   <test name="Threshold">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Threshold.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
   </test>
 
@@ -16,14 +17,24 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Threshold2.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
   </test>
 
   <test name="ImageConversion">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
     </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f ImageConversion.mk WG0=31 WG1=17 SIZE_X=113 SIZE_Y=251 clean run</command>
+    </config>
   </test>
-
-</testset>
 
 </testset>

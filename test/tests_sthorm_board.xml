@@ -1,7 +1,0 @@
-<testset name="Kernel Genius testsuite for the STHORM development board">
-  <testset name="Basic Operations" file="basicOperations/tests_sthorm_board.xml"/>
-  <testset name="node Operator"    file="nodeOperator/tests_sthorm_board.xml"/>
-  <testset name="node Convolution" file="nodeConvolution/tests_sthorm_board.xml"/>
-  <testset name="node Filter"      file="nodeFilter/tests_sthorm_board.xml"/>
-  <testset name="graph construct"  file="graph/tests_sthorm_board.xml"/>
-</testset>

@@ -8,12 +8,17 @@
 
 <testset name="-O0">
 
+<testset name="sync">
+
   <test name="Sobel (Graph)">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelGraph.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelGraph.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelGraph.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SobelGraph.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -21,8 +26,11 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolution.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolution.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolution.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolution.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -30,8 +38,11 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolutionGeneric.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolutionGeneric.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolutionGeneric.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+     <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolutionGeneric.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -39,8 +50,11 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Upsampling.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Upsampling.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Upsampling.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -48,22 +62,97 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f DoG.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f DoG.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f DoG.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70  -f DoG.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
 </testset>
 
 
+<testset name="async">
+
+  <test name="Sobel (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelGraph.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+     <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelGraph.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SobelGraph.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution hard-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolution.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolution.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolution.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution generic-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolutionGeneric.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolutionGeneric.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolutionGeneric.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Upsampling (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Upsampling.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Upsampling.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DoG (Multi-rate)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f DoG.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f DoG.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70  -f DoG.mk ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+</testset>
+
+
 <testset name="-O1">
+
+<testset name="sync">
 
   <test name="Sobel (Graph)">
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelGraph.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelGraph.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelGraph.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SobelGraph.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -71,8 +160,11 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -80,8 +172,11 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+     <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -89,8 +184,11 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Upsampling.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Upsampling.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
@@ -98,10 +196,80 @@
     <config name="posix">
       <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f DoG.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
-    <config name="posix:async">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f DoG.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Upsampling.mk KG_OPT="-O1 --debug 1" WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
+
+</testset>
+
+
+<testset name="async">
+
+  <test name="Sobel (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SobelGraph.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SobelGraph.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SobelGraph.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution hard-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolution.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Separable Convolution generic-coefs (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f SeparableConvolutionGeneric.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="Upsampling (Graph)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+  <test name="DoG (Multi-rate)">
+    <config name="posix">
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -f DoG.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="board">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg PLT_TYPE=sthorm -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+    <config name="xp70">
+      <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f Upsampling.mk KG_OPT="-O1 --debug 1" ASYNC_MERGE=1 WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+    </config>
+  </test>
+
+</testset>
 
 </testset>
 
