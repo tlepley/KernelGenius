@@ -30,4 +30,4 @@ KG_SOURCE = enum
 PROGRAM_NAME = enum
 
 # Include the generic kernel test makefile
-include $(KERNELGENIUS_DIR)/test/make/common_opencl.mk
+include $(KERNELGENIUS_DIR)/test/make/common.mk

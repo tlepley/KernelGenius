@@ -19,11 +19,6 @@
 #  Boston, MA 02110-1301 USA.
 ##################################################################
 
-##################################################################
-#   Common KernelGenius test makefile for the OpenCL target language
-##################################################################
-
-
 
 ##########################################################
 # The following variables can be redefined in the parent 
@@ -73,11 +68,23 @@ KG_COMPILATION_CMD = $(KGCOMPILER) $(KGFLAGS) $(KG_OPT) -o $(PROGRAM_NAME)
 
 
 ##########################################################
-# Target specific makefile
+# Backend makefile
 ##########################################################
 
+ifdef NO_OCL_COMPILATION
+
+# Just KG compilation
+all:: build
+build:: $(PROGRAM_NAME).cl
+$(PROGRAM_NAME).cl: $(SRC_DIR)/$(KG_SOURCE_FILE)
+	echo "--- Compiling KernelGenius file $<"
+	$(KG_COMPILATION_CMD) $<
+clean::
+	rm -rf $(PROGRAM_NAME).c $(PROGRAM_NAME).cl $(PROGRAM_NAME).h
+
+else
 # Include the generic kernel test makefile
 include $(KERNELGENIUS_DIR)/test/make/common_opencl.mk
-
+endif
 
 
