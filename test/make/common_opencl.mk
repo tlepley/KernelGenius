@@ -91,7 +91,15 @@ KERNELS_SRCSBIN := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 
 # Compilation options
 HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir)) -I. -I..
-HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS) -lKgOclRuntime -lm
+HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS)
+ifdef P2012_FABRIC
+# 32 bit version for STHORM
+HOST_LDFLAGS += -L$(RUNTIME_DIR)/lib32 -Wl,-rpath,$(RUNTIME_DIR)/lib32
+else
+# Actual host version for others
+HOST_LDFLAGS += -L$(RUNTIME_DIR)/lib -Wl,-rpath,$(RUNTIME_DIR)/lib
+endif
+HOST_LDFLAGS += -lKgOclRuntime -lm
 
 # Source & objects
 SRCS = $(SRC_DIR)/test_$(APP_NAME).c $(PROGRAM_NAME).c
@@ -132,7 +140,7 @@ $(PLT_BUILD_DIR)/%.so: %.cl
 	@echo "--- Compiling OpenCL kernels in $<"
 	mkdir -p $(PLT_BUILD_DIR)
 ifeq ($(DEVICE_TYPE),cpu_intel)
-	$(CLCOMPILER) $(CLCFLAGS)  $(CLCOMPILER_IN)$< $(CLCOMPILER_OUT)$@
+	$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_IN)$< $(CLCOMPILER_OUT)$@
 else
 	$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_OUT) $@ $(CLCOMPILER_IN) $<
 endif
@@ -149,7 +157,7 @@ $(PLT_BUILD_DIR)/gen/%.o: %.c
 	
 $(EXEC): $(OBJS)
 	@echo "--- Linking $@"	
-	$(HOST_CC) $(HOST_CFLAGS) -L$(RUNTIME_DIR)/lib $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
+	$(HOST_CC) $(HOST_CFLAGS) $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
 	
 
 ##########################################################

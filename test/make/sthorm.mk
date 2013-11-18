@@ -7,8 +7,8 @@ include $(CLAM_PKG)/rules/targets.mk
 
 # Offline OpenCL compilation
 CLCOMPILER = $(CLAM_PKG)/bin/clamc
-CLCOMPILER_OUT = '-o '
-CLCOMPILER_in = '-- '
+CLCOMPILER_OUT = -o$(space)
+CLCOMPILER_IN = --$(space)
 CLCFLAGS += -O2 -g -Wall -target_device $(TARGET_DEVICE)
 
 ifdef CLAM_KERNELFLAGS

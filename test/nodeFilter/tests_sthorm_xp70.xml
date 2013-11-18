@@ -128,13 +128,13 @@
   </test>
 
    <test name="BorderInputs (const/mirror)">
-    <config name="posix">
+    <config name="xp70">
       <command name="exec">clCheck 700 make KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f BorderInputs.mk WINDOW1=2 BORDER1=-58 WINDOW2=5 BORDER2=mirror WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
   
    <test name="BorderInputs (undef/duplicate)">
-    <config name="posix">
+    <config name="xp70">
       <command name="exec">clCheck 700 make KGCOMPILER=sthormkg FABRIC_TYPE=xp70 -f BorderInputs.mk WINDOW1=2 BORDER1=undef WINDOW2=7 BORDER2=duplicate WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>

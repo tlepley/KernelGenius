@@ -27,27 +27,34 @@ INC_DIR = include
 INC_DIR_EXTRA = include_extra
 SRC_DIR = src
 LIB_DIR = lib
+LIB_DIR32 = lib32
 BUILD_DIR = build
+BUILD_DIR32 = build32
 
 # Source & objects
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SRCS)))
+OBJS32 = $(patsubst %.c,$(BUILD_DIR32)/%.o,$(notdir $(SRCS)))
 LIB = libKgOclRuntime.so
 
 .PHONY: all build clean package run
 
 all:: build
 
-build:: $(LIB_DIR)/$(LIB)
+build:: $(LIB_DIR)/$(LIB) $(LIB_DIR32)/$(LIB)
 
 clean::
-	rm -rf $(LIB_DIR) $(BUILD_DIR)
-
+	rm -rf $(LIB_DIR) $(LIB_DIR32) $(BUILD_DIR)
 
 $(LIB_DIR)/$(LIB): $(OBJS)
 	echo "--- Compiling library $<"
 	mkdir -p $(LIB_DIR)
 	$(HOST_CC) $(HOST_LDFLAGS) -o $@ $<
+
+$(LIB_DIR32)/$(LIB): $(OBJS32)
+	echo "--- Compiling library $<"
+	mkdir -p $(LIB_DIR32)
+	$(HOST_CC) -m32  $(HOST_LDFLAGS) -o $@ $<
 
 # Implicit rules
 .SUFFIXES: .so .o .c
@@ -56,6 +63,9 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	echo "--- Compiling '$<'"
 	mkdir -p $(BUILD_DIR)
 	$(HOST_CC) $(HOST_CFLAGS) -I$(INC_DIR) -I$(INC_DIR_EXTRA) -c $< -o $@
-
-$(LIB_DIR)/%.so: %.o
+	
+$(BUILD_DIR32)/%.o: $(SRC_DIR)/%.c
+	echo "--- Compiling '$<'"
+	mkdir -p $(BUILD_DIR32)
+	$(HOST_CC) -m32 $(HOST_CFLAGS) -I$(INC_DIR) -I$(INC_DIR_EXTRA) -c $< -o $@
 
