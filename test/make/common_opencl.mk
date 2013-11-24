@@ -64,6 +64,7 @@ else ifeq ($(DEVICE_TYPE),sthorm)
 include $(MAKE_DIR)/sthorm.mk
 else
 $(warning DEVICE_TYPE is not defined, taking cpu_intel)
+DEVICE_TYPE=cpu_intel
 include $(MAKE_DIR)/cpu_intel.mk
 endif
 

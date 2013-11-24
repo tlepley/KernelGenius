@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testset name="KernelGenius examples">
+
+<testset name="Intel">
+
+  <test name="downsampling">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C downsampling clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C downsampling clean run</command>
+    </config>
+  </test>
+
+  <test name="gradient">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C gradient clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C gradient clean run</command>
+    </config>
+  </test>
+
+  <test name="imageDifference">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C imageDifference clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C imageDifference clean run</command>
+    </config>
+   </test>
+
+  <test name="separableConvolution">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C separableConvolution clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C separableConvolution clean run</command>
+    </config>
+  </test>
+
+  <test name="sobel">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C sobel clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C sobel clean run</command>
+    </config>
+  </test>
+
+  <test name="sobelLowLevel">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C sobelLowLevel clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C sobelLowLevel clean run</command>
+    </config>
+  </test>
+
+  <test name="threshold">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C threshold clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C threshold clean run</command>
+    </config>
+  </test>
+
+  <test name="upsampling">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_intel ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C upsampling clean run</command>
+    </config>
+    <config name="offline">
+      <command name="exec">make DEVICE_TYPE=cpu_intel KGCOMPILER=sthormkg -C upsampling clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+
+<testset name="AMD">
+
+  <test name="downsampling">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C downsampling clean run</command>
+    </config>
+  </test>
+
+  <test name="gradient">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C gradient clean run</command>
+    </config>
+  </test>
+
+  <test name="imageDifference">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C imageDifference clean run</command>
+    </config>
+  </test>
+ 
+  <test name="separableConvolution">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C separableConvolution clean run</command>
+    </config>
+  </test>
+
+  <test name="sobel">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C sobel clean run</command>
+    </config>
+  </test>
+
+  <test name="sobelLowLevel">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C sobelLowLevel clean run</command>
+    </config>
+  </test>
+
+  <test name="threshold">
+    <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C threshold clean run</command>
+    </config>
+  </test>
+
+  <test name="upsampling">
+     <config name="online">
+      <command name="exec">make DEVICE_TYPE=cpu_amd ONLINE_CL_COMPILATION=1 KGCOMPILER=sthormkg -C upsampling clean run</command>
+    </config>
+  </test>
+
+</testset>
+
+
+
+
+
+
+
+
+
+</testset>

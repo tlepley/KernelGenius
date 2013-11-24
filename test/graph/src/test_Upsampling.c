@@ -340,7 +340,7 @@ int main(int argc, char * argv[]) {
  
   /* Get back the output buffer from the device memory (blocking read) */
   output = clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*4*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
-  oclCheckStatus(status,"clEnqueueMapBuffer failed.");
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");
 
 
   //==================================================================
@@ -348,10 +348,10 @@ int main(int argc, char * argv[]) {
   //==================================================================
 
   {
-	input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
-	oclCheckStatus(status,"clEnqueueMapBuffer input failed.");\
-
-	struct timeval start, end;
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+    oclCheckStatus(status,"clEnqueueMapBuffer input failed.");	\
+    
+    struct timeval start, end;
     gettimeofday(&start, NULL);
     
     // Compute result from the reference code

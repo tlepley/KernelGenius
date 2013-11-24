@@ -19,9 +19,9 @@
 #  Boston, MA 02110-1301 USA.
 ##################################################################
 
-##################################################################
-#   Example of a threshold filter
-##################################################################
+#=============================================================================
+# Threshold configuration
+#=============================================================================
 
 # Configuration
 WG0 ?= 2
@@ -30,9 +30,6 @@ WI ?= 16
 SIZE_X ?= 640
 SIZE_Y ?= 480
 
-#=============================================================================
-# Test configuration
-#=============================================================================
 APP_NAME = Threshold
 KG_SOURCE = Threshold
 PROGRAM_NAME = Threshold
@@ -40,17 +37,21 @@ PROGRAM_NAME = Threshold
 RUN_ARGS = -x $(SIZE_X) -y $(SIZE_Y) -wi $(WI) -wg0 $(WG0) -wg1 $(WG1)
 KGFLAGS = --report
 
-
 #=============================================================================
-# Generic rules
+# Variables
 #=============================================================================
-SRC_DIR   ?= src
-BUILD_DIR = $(CURDIR)/build_kg
 
+# Source directory
+SRC_DIR ?= src
+
+# Flags for KernelGenius
 ifndef KGCOMPILER 
 KGCOMPILER = kgenc 
 KG_TARGET_DEVICE = cpu
 endif
+
+KGFLAGS ?=
+KG_OPT ?=
 
 # KernelGenius compilation
 ifdef KG_TARGET_LANGUAGE
@@ -66,31 +67,56 @@ KGFLAGS += --async
 endif
 
 
-# KernelGenius compilation
-build-kg: $(BUILD_DIR)/$(PROGRAM_NAME).cl  $(BUILD_DIR)/$(PROGRAM_NAME).c  $(BUILD_DIR)/$(PROGRAM_NAME).h
+#=============================================================================
+# Compilation rules
+#=============================================================================
 
-# KernelGenius + OpenCL compilation
-build:  $(BUILD_DIR)/$(PROGRAM_NAME).cl $(BUILD_DIR)/$(PROGRAM_NAME).c $(BUILD_DIR)/$(PROGRAM_NAME).h
-	@make -f MakefileOpenCL.mk build SRC_DIR="$(SRC_DIR) $(BUILD_DIR)" APP_NAME="$(APP_NAME)"
+VPATH = $(SRC_DIR)
 
-# KernelGenius + OpenCL compilation + execution
-run:  $(BUILD_DIR)/$(PROGRAM_NAME).cl $(BUILD_DIR)/$(PROGRAM_NAME).c $(BUILD_DIR)/$(PROGRAM_NAME).h
-	@make -f MakefileOpenCL.mk run SRC_DIR="$(SRC_DIR) $(BUILD_DIR)" APP_NAME="$(APP_NAME)" \
-                BORDER="$(BORDER)" RUN_ARGS="$(RUN_ARGS)"
+KG_BUILD_DIR = $(CURDIR)/build_kg
+KG_SOURCE_FILE = $(KG_SOURCE).kg
+KG_COMPILATION_CMD = $(KGCOMPILER) --outdir $(KG_BUILD_DIR) $(KGFLAGS) $(KG_OPT) -o $(PROGRAM_NAME)
+
+all:: build
+
+# Implicit rules
+.SUFFIXES: .kg .cl .c .h
+
+$(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
+$(KG_BUILD_DIR)/$(PROGRAM_NAME).c \
+$(KG_BUILD_DIR)/$(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
+	echo "--- Compiling KernelGenius file $<"
+	$(KG_COMPILATION_CMD) $<
 
 
-# KernelGenius compilation rule
- $(BUILD_DIR)/$(PROGRAM_NAME).cl $(BUILD_DIR)/$(PROGRAM_NAME).c $(BUILD_DIR)/$(PROGRAM_NAME).h: $(SRC_DIR)/$(KG_SOURCE).kg
-	@echo "--- Compiling KernelGenius file $<"
-	@mkdir -p $(BUILD_DIR)
-	$(KGCOMPILER) -o $(PROGRAM_NAME) --outdir $(BUILD_DIR) $(KGFLAGS) $<
+#=============================================================================
+# Cleaning
+#=============================================================================
+
+clean::
+	rm -rf $(KG_BUILD_DIR)/$(PROGRAM_NAME).c  \
+	       $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
+	       $(KG_BUILD_DIR)/$(PROGRAM_NAME).h
+
+cleanall::
+	rm -rf $(KG_BUILD_DIR)
 
 
-# Cleanup rules
-clean :
-	rm -rf  $(BUILD_DIR)/$(PROGRAM_NAME).cl  $(BUILD_DIR)/$(PROGRAM_NAME).c  $(BUILD_DIR)/$(PROGRAM_NAME).h
-	make -f MakefileOpenCL.mk clean
+#=============================================================================
+# Backend makefile
+#=============================================================================
 
-cleanall :
-	rm -rf  $(BUILD_DIR)
-	make -f MakefileOpenCL.mk cleanall
+MAKE_DIR=make
+
+ifdef NO_OCL_COMPILATION
+
+# Just KG compilation
+all:: build
+
+build:: $(KG_BUILD_DIR)/$(PROGRAM_NAME).c
+
+else
+# Include the generic kernel test makefile
+include $(MAKE_DIR)/MakefileOpenCL.mk
+endif
+

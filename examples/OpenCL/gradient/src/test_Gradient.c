@@ -19,18 +19,20 @@
   Boston, MA 02110-1301 USA.
 */
 
-/* Gradient filter example */
+/* This an example of 'Gradient Filter' */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include <CL/cl.h>
-#include <common_ocl.h>
+#include "kg_ocl_runtime.h"
 
 #include "Gradient.h"
 
+static char * OPENCL_PLT_VENDOR = NULL;
 
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #define ABS(a) ((a)<0?-(a):(a))
@@ -244,49 +246,61 @@ static int TestGradient(cl_program program) {
   
   
   /* Synchronize buffers between host and device*/
-  cl_event unmap_event;
-  status=clEnqueueUnmapMemObject(commandQueue,inputBuffer,input,0,NULL,&unmap_event);
+  cl_event unmap_event[2];
+  status=clEnqueueUnmapMemObject(commandQueue,inputBuffer,input,0,NULL,&unmap_event[0]);
   oclCheckStatus(status,"clEnqueueUnmapMemObject input failed.");
+  status=clEnqueueUnmapMemObject(commandQueue,outputBuffer,output,0,NULL,&unmap_event[1]);
+  oclCheckStatus(status,"clEnqueueUnmapMemObject input failed.");
+  status = clWaitForEvents(2,&unmap_event);
 
   /* Enqueue a kernel run call */
   printf("** Execution of 'Gradient' kernel\n");
   cl_event event;
-  status = clEnqueueNDRangeKernel(commandQueue,
-				  kernel,
-				  2,  // dimensions
-				  NULL,  // no offset
-				  globalThreads,
-				  localThreads,
-	       			  1,&unmap_event,
-				  &event);
-  oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
-  
-  
-  /* Get back the output buffer from the device memory (blocking read) */
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_float)*2*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-  
-  
-  //==================================================================
-  // End of the Host application, release now useless OpenCL objects
-  //==================================================================  
-  clReleaseEvent(unmap_event);
-  clReleaseEvent(event);
-  clReleaseKernel(kernel);
-  clReleaseProgram(program);
-  clReleaseCommandQueue(commandQueue);
-  clReleaseContext(context);
-  //printf("-> OCL objects released\n");
-  printf("** The 'Gradient' kernel execution has completed.\n");
-  
 
+  {
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    status = clEnqueueNDRangeKernel(commandQueue,
+				    kernel,
+				    2,  // dimensions
+				    NULL,  // no offset
+				    globalThreads,
+				    localThreads,
+				    2,&unmap_event,
+				    &event);
+    oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
+    status = clWaitForEvents(1, &event);
+    
+    gettimeofday(&end, NULL);
+    printf("** The 'Gradient' kernel execution has completed.\n");
+    printf("OpenCL Kernel execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
+
+  /* Get back the output buffer from the device memory (blocking read) */
+  output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*2*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
+ 
   //==================================================================
   // Check results
   //==================================================================
   
-  // Compute result from the reference code
-  update_gradient((float*)check_output,(float*)input,IMAGE_X,IMAGE_Y);  
+  {
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(cl_float)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+    oclCheckStatus(status,"clEnqueueMapBuffer input failed."); 
+
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    // Compute result from the reference code
+    update_gradient((float*)check_output,(float*)input,IMAGE_X,IMAGE_Y);  
   
+    gettimeofday(&end, NULL);
+    printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
+
+  in =(float (*)[IMAGE_Y][IMAGE_X])input;
+  out =(float (*)[IMAGE_Y][2*IMAGE_X])output;
+
   // Check reference vs OCL
   int nok=0;int first=1;
   for(y=0;y<IMAGE_Y;y++) {
@@ -340,6 +354,18 @@ static int TestGradient(cl_program program) {
     printf(">> 'Gradient' completed OK\n");
   }
   
+
+  //==================================================================
+  // Termination
+  //==================================================================
+  
+  clReleaseMemObject(inputBuffer);
+  clReleaseMemObject(outputBuffer);
+  clReleaseEvent(event);
+  clReleaseKernel(kernel);
+  clReleaseProgram(program);
+  //printf("-> OCL objects released\n");
+  
   if (nok) {
     return 1;
   }
@@ -348,17 +374,18 @@ static int TestGradient(cl_program program) {
   }
 }
 
-
 void printUsage(char *s) {
   printf("usage: %s [option]*\n",s);
   printf("\
 options :\n\
   -h or --help : display this help\n\
+  -vendor <name> : vendor name\n\
   -x <num> : width of the matrix\n\
   -y <num> : height of the matrix\n\
   -border <mode> : border mode\n\
   -wi <num> : number of work-items per work-groups\n\
-  -wg <num> : number of work-groups\n\
+  -wg0 <num> : number of work-groups, x-axis\n\
+  -wg1 <num> : number of work-groups, y-axis\n\
 ");
   exit(0);
 }
@@ -371,11 +398,20 @@ void processOptions(int argc, char *argv[]) {
     if ((strcmp(argv[i],"-h")==0)||(strcmp(argv[i],"--help")==0)) {
       printUsage(argv[0]);
     }
+    else if ((strcmp(argv[i],"-vendor")==0)) {
+      if (i==argc-1) {
+	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
+	exit(1);
+      }
+      i++;
+      OPENCL_PLT_VENDOR=argv[i];
+    }
     else if ((strcmp(argv[i],"-x")==0)) {
       if (i==argc-1) {
 	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
 	exit(1);
       }
+
       i++;
       IMAGE_X=atoi(argv[i]);
     }
@@ -395,7 +431,7 @@ void processOptions(int argc, char *argv[]) {
       i++;
       NB_WI=atoi(argv[i]);
     }
-   else if ((strcmp(argv[i],"-wg0")==0)) {
+    else if ((strcmp(argv[i],"-wg0")==0)) {
       if (i==argc-1) {
 	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
 	exit(1);
@@ -425,11 +461,6 @@ int main(int argc, char * argv[]) {
   // Manage options
   processOptions(argc,argv);
   
-  printf("***********************************************************\n");
-  printf("*             Example of simple operation                 *\n");
-  printf("***********************************************************\n");
-  printf("\n");
-
   // Print configuration
   printf("** Configuration **\n");
   printf("  - Image dimensions : [%d,%d]\n",IMAGE_X,IMAGE_Y);
@@ -438,42 +469,64 @@ int main(int argc, char * argv[]) {
   printf("\n");
 
 
-  printf("** OpenCL global setup\n");
+  //==================================================================
+  // OpenCL setup
+  //==================================================================
+  
+  //printf("-> OpenCL host setup\n");
+  
+  /* Get the OpenCL platform and print some infos */
+  if (OPENCL_PLT_VENDOR==NULL) {
+    platform=oclGetFirstPlatform();
+  }
+  else {
+    platform=oclGetFirstPlatformFromVendor(OPENCL_PLT_VENDOR);
+  }
+  oclDisplayPlatformInfo(platform);
+  
+  /* Pickup the first available devices */
+  device = oclGetFirstDevice(platform);
+  //oclDisplayDeviceInfo(device);
+  
+  /* Create context */
+  //printf("-> Create context\n");
+  context = oclCreateContext(platform,device);
+  
+  /* Create a command Queue  */
+  //printf("-> Create command Queue\n");
+  commandQueue = oclCreateCommandQueueOOO(context, device);
 
-  /* OpenCL setup */
-  /* ------------ */
-  platform    = oclGetFirstPlatform();
-  device      = oclGetFirstDevice(platform);
-  context     = oclCreateContext(platform,device);
-  commandQueue= oclCreateCommandQueueOOO(context,device);
 
   //==================================================================
   // Compile the program
   //==================================================================
-
+  
   // Initialization of gradient kernels (load/compile program)
 #ifdef AHEAD_OF_TIME
-  cl_program program =createGradientProgramFromBinary(context,device);
+  cl_program program = createGradientProgramFromBinary(context,device);
 #else
-  cl_program program = createGradientProgramFromSource(context,device,NULL)
+  cl_program program = createGradientProgramFromSource(context,device,NULL);
 #endif
   
   //==================================================================
   // Check kernels
   //==================================================================
+  
   // Gradient
   status = TestGradient(program);
-
-  printf("\n");
-  printf("***********************************************************\n");
-  printf("*                    End of example                       *\n");
-  printf("***********************************************************\n");
-  printf("\n");
-
+  
+  //==================================================================
+  // Termination
+  //==================================================================
+  
+  clReleaseCommandQueue(commandQueue);
+  clReleaseContext(context);
+  //printf("-> OCL objects released\n");
+  
   // Unload the OpenCL runtime for correct trace generation
 #ifdef __P2012__
   clUnloadRuntime();
 #endif
-
+  
   return status;
 }

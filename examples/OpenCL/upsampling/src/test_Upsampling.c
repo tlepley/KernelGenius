@@ -17,19 +17,24 @@
   License along with this program; if not, write to the Free
   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
   Boston, MA 02110-1301 USA.
+  
+  Authors: Thierry Lepley
 */
 
-/* Example of Upsampling-by-2 Filter */
+/* This is the test of a 'Upsampling Filter' */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sys/time.h>
 
 #include <CL/cl.h>
-#include <common_ocl.h>
+#include "kg_ocl_runtime.h"
 
 #include <Upsampling.h>
+
+static char * OPENCL_PLT_VENDOR = NULL;
 
 #ifdef DATA_INT
 #define DATA_TYPE cl_int
@@ -86,6 +91,7 @@ void printUsage(char *s) {
   printf("\
 options :\n\
   -h or --help : display this help\n\
+  -vendor <name> : vendor name\n\
   -x <num> : width of the matrix\n\
   -y <num> : height of the matrix\n\
   -wi <num> : number of work-items per work-groups\n\
@@ -101,6 +107,14 @@ void processOptions(int argc, char *argv[]) {
 
     if ((strcmp(argv[i],"-h")==0)||(strcmp(argv[i],"--help")==0)) {
       printUsage(argv[0]);
+    }
+    else if ((strcmp(argv[i],"-vendor")==0)) {
+      if (i==argc-1) {
+	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
+	exit(1);
+      }
+      i++;
+      OPENCL_PLT_VENDOR=argv[i];
     }
     else if ((strcmp(argv[i],"-x")==0)) {
       if (i==argc-1) {
@@ -156,11 +170,6 @@ int main(int argc, char * argv[]) {
   // Manage options
   processOptions(argc,argv);
   
-  printf("***********************************************************\n");
-  printf("*              Example of Upsampling filter               *\n");
-  printf("***********************************************************\n");
-  printf("\n");
-
   // Print configuration
   printf("** Configuration **\n");
   printf("  - Image dimensions : [%d,%d]\n",IMAGE_X,IMAGE_Y);
@@ -182,8 +191,14 @@ int main(int argc, char * argv[]) {
   
   //printf("-> OpenCL host setup\n");
   
-  /* Get the first OpenCL platform and print some infos */
-  cl_platform_id platform = oclGetFirstPlatform();
+  /* Get the OpenCL platform and print some infos */
+  cl_platform_id platform;
+  if (OPENCL_PLT_VENDOR==NULL) {
+    platform=oclGetFirstPlatform();
+  }
+  else {
+    platform=oclGetFirstPlatformFromVendor(OPENCL_PLT_VENDOR);
+  }
   oclDisplayPlatformInfo(platform);
   
   /* Pickup the first available devices */
@@ -222,13 +237,8 @@ int main(int argc, char * argv[]) {
   //printf("-> Create Input/Output Buffer\n");
   /* Create an input/output buffers mapped in the host address space */
   cl_mem inputBuffer,outputBuffer;
-#ifdef DATA_INT
-  cl_int *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&inputBuffer);
-  cl_int *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),4*IMAGE_X*IMAGE_Y,&outputBuffer);
-#else
-  cl_float *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&inputBuffer);
-  cl_float *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_float),4*IMAGE_X*IMAGE_Y,&outputBuffer);
-#endif
+  DATA_TYPE *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&inputBuffer);
+  DATA_TYPE *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(DATA_TYPE),4*IMAGE_X*IMAGE_Y,&outputBuffer);
   DATA_TYPE *check_tmp    = malloc(sizeof(DATA_TYPE)*IMAGE_Y*2*IMAGE_X);
   DATA_TYPE *check_output = malloc(sizeof(DATA_TYPE)*4*IMAGE_Y*IMAGE_X);
   
@@ -296,6 +306,7 @@ int main(int argc, char * argv[]) {
   oclCheckStatus(status,"clEnqueueUnmapMemObject input failed.");
   status=clEnqueueUnmapMemObject(commandQueue,outputBuffer,output,0,NULL,&unmap_event[1]);
   oclCheckStatus(status,"clEnqueueUnmapMemObject output failed.");
+  status = clWaitForEvents(2,&unmap_event[0]);
 
 
   /* Enqueue a kernel run call */
@@ -306,48 +317,56 @@ int main(int argc, char * argv[]) {
   //printf("-> Launching OpenCL kernel execution (float)\n");
 #endif
   
-  status = clEnqueueNDRangeKernel(commandQueue,
-				  kernel,
-				  2,  // dimensions
-				  NULL,  // no offset
-				  globalThreads,
-				  localThreads,
-				  //0,NULL,
-	       			  2,&unmap_event[0],
-				  &event);
-  oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
-  
+  {
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    
+    status = clEnqueueNDRangeKernel(commandQueue,
+				    kernel,
+				    2,  // dimensions
+				    NULL,  // no offset
+				    globalThreads,
+				    localThreads,
+				    //0,NULL,
+				    2,&unmap_event[0],
+				    &event);
+    oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
+    status = clWaitForEvents(1, &event);
+    
+    gettimeofday(&end, NULL);
+    printf("** OpenCL 'Upsampling' has completed. ** \n\n");
+    printf("OpenCL Kernel execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
+ 
   /* Get back the output buffer from the device memory (blocking read) */
-  #ifdef DATA_INT
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_int)*4*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-#else
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_float)*4*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-#endif
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
-
-  
-  //==================================================================
-  // End of the Host application, release now useless OpenCL objects
-  //==================================================================  
-  clReleaseEvent(event);
-  clReleaseKernel(kernel);
-  clReleaseProgram(program);
-  clReleaseCommandQueue(commandQueue);
-  clReleaseContext(context);
-  //printf("-> OCL objects released\n");
-  printf("** OpenCL 'Upsampling' has completed. ** \n\n");
+  output = clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*4*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");
 
 
   //==================================================================
   // Check
   //==================================================================
 
-  // Compute result from the reference code
-  copy_and_upsample_rows((float *)check_tmp,(float *)input,
-			 IMAGE_X,IMAGE_Y);  
-  copy_and_upsample_rows((float *)check_output,(float *)check_tmp,
-			 IMAGE_Y,2*IMAGE_X);
-  
+  {
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+    oclCheckStatus(status,"clEnqueueMapBuffer input failed.");	\
+    
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    
+    // Compute result from the reference code
+    copy_and_upsample_rows((float *)check_tmp,(float *)input,
+			   IMAGE_X,IMAGE_Y);
+    copy_and_upsample_rows((float *)check_output,(float *)check_tmp,
+			   IMAGE_Y,2*IMAGE_X);
+    
+    gettimeofday(&end, NULL);
+    printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
+
+  in =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input;
+  out =(DATA_TYPE (*)[2*IMAGE_Y][2*IMAGE_X])output;
+
   // Check results
   int nok=0;
   int X_MIN=0, X_MAX=IMAGE_X;
@@ -429,14 +448,12 @@ int main(int argc, char * argv[]) {
   // Release mapped buffer
   clReleaseMemObject(inputBuffer);
   clReleaseMemObject(outputBuffer);
-
-  //printf("** OCL buffers released. **\n");
-
-  printf("\n");
-  printf("***********************************************************\n");
-  printf("*                    End of example                       *\n");
-  printf("***********************************************************\n");
-  printf("\n");
+  clReleaseEvent(event);
+  clReleaseKernel(kernel);
+  clReleaseProgram(program);
+  clReleaseCommandQueue(commandQueue);
+  clReleaseContext(context);
+  //printf("-> OCL objects released\n");
 
   // Stop the OCL runtime
 #ifdef __P2012__

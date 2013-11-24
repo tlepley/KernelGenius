@@ -17,9 +17,11 @@
   License along with this program; if not, write to the Free
   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
   Boston, MA 02110-1301 USA.
+  
+  Authors: Thierry Lepley
 */
 
-/* Example of a threshold filter */
+/* This is the test of the Operator node */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,9 +29,11 @@
 #include <math.h>
 
 #include <CL/cl.h>
-#include <common_ocl.h>
+#include "kg_ocl_runtime.h"
 
 #include <Threshold.h>
+
+static char * OPENCL_PLT_VENDOR = NULL;
 
 #ifdef DATA_INT
 #define DATA_TYPE cl_int
@@ -52,7 +56,6 @@ static int NB_WG0 = 1;
 static int NB_WG1 = 1;
 
 static int THRESHOLD=15.5f;
-
 
 
 int computeThreshold(DATA_TYPE a, DATA_TYPE t) {
@@ -84,8 +87,10 @@ void printUsage(char *s) {
   printf("\
 options :\n\
   -h or --help : display this help\n\
+  -vendor <name> : vendor name\n\
   -x <num> : width of the matrix\n\
   -y <num> : height of the matrix\n\
+  -operation <mode> : compute operation\n\
   -wi <num> : number of work-items per work-groups\n\
   -wg0 <num> : number of work-groups, x-axis\n\
   -wg1 <num> : number of work-groups, y-axis\n\
@@ -99,6 +104,14 @@ void processOptions(int argc, char *argv[]) {
 
     if ((strcmp(argv[i],"-h")==0)||(strcmp(argv[i],"--help")==0)) {
       printUsage(argv[0]);
+    }
+    else if ((strcmp(argv[i],"-vendor")==0)) {
+      if (i==argc-1) {
+	fprintf(stderr,"error : missing number after option '%s'\n",argv[i]);
+	exit(1);
+      }
+      i++;
+      OPENCL_PLT_VENDOR=argv[i];
     }
     else if ((strcmp(argv[i],"-x")==0)) {
       if (i==argc-1) {
@@ -154,11 +167,6 @@ int main(int argc, char * argv[]) {
   // Manage options
   processOptions(argc,argv);
   
-  printf("***********************************************************\n");
-  printf("*             Example of Threshold filter                 *\n");
-  printf("***********************************************************\n");
-  printf("\n");
-
   // Print configuration
   printf("** Configuration **\n");
   printf("  - Image dimensions : [%d,%d]\n",IMAGE_X,IMAGE_Y);
@@ -174,14 +182,20 @@ int main(int argc, char * argv[]) {
   printf("\n");
 
   
-  //==================================================================
+//==================================================================
   // OpenCL setup
   //==================================================================
   
   //printf("-> OpenCL host setup\n");
   
-  /* Get the first OpenCL platform and print some infos */
-  cl_platform_id platform = oclGetFirstPlatform();
+  /* Get the OpenCL platform and print some infos */
+  cl_platform_id platform;
+  if (OPENCL_PLT_VENDOR==NULL) {
+    platform=oclGetFirstPlatform();
+  }
+  else {
+    platform=oclGetFirstPlatformFromVendor(OPENCL_PLT_VENDOR);
+  }
   oclDisplayPlatformInfo(platform);
   
   /* Pickup the first available devices */
@@ -220,12 +234,8 @@ int main(int argc, char * argv[]) {
   //printf("-> Create Input/Output Buffer\n");
   /* Create an input/output buffers mapped in the host address space */
   cl_mem inputBuffer, outputBuffer;
-#ifdef DATA_INT
-  cl_int *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&inputBuffer);
-#else
-  cl_float *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(cl_float),IMAGE_X*IMAGE_Y,&inputBuffer);
-#endif
-  cl_int *output = oclCreateMapRWIntBuffer2D(context,commandQueue,IMAGE_X,IMAGE_Y,&outputBuffer);
+  DATA_TYPE *input = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_ONLY,CL_MAP_WRITE,sizeof(DATA_TYPE),IMAGE_X*IMAGE_Y,&inputBuffer);
+  cl_int *output = oclCreateMapBuffer(context,commandQueue,CL_MEM_READ_WRITE,CL_MAP_READ|CL_MAP_WRITE,sizeof(cl_int),IMAGE_X*IMAGE_Y,&outputBuffer);
   int *check_output   = malloc(sizeof(int)*IMAGE_Y*IMAGE_X);
   
   /* For using arrays instead of pointers */
@@ -266,7 +276,7 @@ int main(int argc, char * argv[]) {
   setKernelArgs_Threshold(kernel,
 #endif
 			  NB_WG0, NB_WG1, NB_WI,
-			  outputBuffer,
+			  outputBuffer,					  
 			  IMAGE_X,
 			  IMAGE_Y,
 #ifdef REVERSE
@@ -329,30 +339,33 @@ int main(int argc, char * argv[]) {
   oclCheckStatus(status,"clEnqueueNDRangeKernel failed.");
   
   /* Get back the output buffer from the device memory (blocking read) */
-  status = clEnqueueReadBuffer(commandQueue,outputBuffer,CL_TRUE,0,sizeof(cl_int)*IMAGE_X*IMAGE_Y,output,1,&event,NULL);
-  oclCheckStatus(status,"clEnqueueReadBuffer failed.");
+  output= clEnqueueMapBuffer(commandQueue,outputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,1,&event,NULL,&status);
+  oclCheckStatus(status,"clEnqueueMapBuffer output failed.");\
 
-  
-  //==================================================================
-  // End of the Host application, release now useless OpenCL objects
-  //==================================================================
-  
-  clReleaseEvent(event);
-  clReleaseKernel(kernel);
-  clReleaseProgram(program);
-  clReleaseCommandQueue(commandQueue);
-  clReleaseContext(context);
-  //printf("-> OCL objects released\n");
   printf("** OpenCL 'Threshold' has completed. ** \n\n");
 
 
   //==================================================================
-  // Check
+  // Check results
   //==================================================================
 
-  // Compute reference data
-  computeImage(check_output,input, THRESHOLD, IMAGE_X,IMAGE_Y);
+  {
+    input= clEnqueueMapBuffer(commandQueue,inputBuffer,CL_TRUE,CL_MAP_READ,0,sizeof(DATA_TYPE)*IMAGE_X*IMAGE_Y,0,NULL,NULL,&status);
+    oclCheckStatus(status,"clEnqueueMapBuffer input failed.");	\
+ 
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    // Compute reference data
+    computeImage(check_output,input, THRESHOLD, IMAGE_X,IMAGE_Y);
+
+    gettimeofday(&end, NULL);
+    printf("Reference code execution time: %ld (microseconds)\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  }
   
+  in =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])input;
+  out =(DATA_TYPE (*)[IMAGE_Y][IMAGE_X])output;
+
   // Check results
   int nok=0;
   int X_MIN=0, X_MAX=IMAGE_X;
@@ -415,18 +428,16 @@ int main(int argc, char * argv[]) {
   //==================================================================
   // Termination
   //==================================================================
-
-  // Release mapped buffer
+  
   clReleaseMemObject(inputBuffer);
   clReleaseMemObject(outputBuffer);
+  clReleaseEvent(event);
+  clReleaseKernel(kernel);
+  clReleaseProgram(program);
+  clReleaseCommandQueue(commandQueue);
+  clReleaseContext(context);
+  //printf("-> OCL objects released\n");
 
-  //printf("** OCL buffers released. **\n");
-
-  printf("\n");
-  printf("***********************************************************\n");
-  printf("*                    End of example                       *\n");
-  printf("***********************************************************\n");
-  printf("\n");
 
   // Stop the OCL runtime
 #ifdef __P2012__
