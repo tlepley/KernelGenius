@@ -259,7 +259,7 @@ public class Kernel extends IRElement {
   }
    
   public void tileAnalysis() {   
-    // 1- Compute the minimum tile granularity for each node that is deduced by
+    // 1- Compute the minimum tile granularity for each node that is deduced from
     //    the 'stride' information and successors
     // 2- Compute the Nbh that is deduced by the 'stride' and the
     //    'read access pattern' information
@@ -386,169 +386,169 @@ public class Kernel extends IRElement {
   //            -> look at force scheduling
   //***********************************************************************************
   public void computeScheduling() {
-    Set<FunctionNode> to_schedule=new HashSet<FunctionNode>();
-    to_schedule.addAll(getFunctionNodeList());
+  	Set<FunctionNode> to_schedule=new HashSet<FunctionNode>();
+  	to_schedule.addAll(getFunctionNodeList());
 
-    // Initialization
-    for(KernelData kd:getComputationalInputList()) {
-        kd.getCodegenDataPattern().setSchedulingCycle(0);
-    }
-    
-    Set<FunctionNode> schedulable=new HashSet<FunctionNode>();
+  	// Initialization
+  	for(KernelData kd:getComputationalInputList()) {
+  		kd.getCodegenDataPattern().setSchedulingCycle(0);
+  	}
 
-    while (!to_schedule.isEmpty()) {
-      // Compute schedulable nodes
-      schedulable.clear();
-      for(FunctionNode fn:to_schedule) {
-        boolean ok=true;
-        for(DataEdge de:fn.inputEdgeList) { 
-          if (!de.getSourceData().getCodegenDataPattern().isScheduled()) {
-            ok=false;
-            break;
-          }
-        }
-        if (ok) {
-          schedulable.add(fn);
-        }
-      }
-        
-      // Schedule schedulable nodes
-      for(FunctionNode fn:schedulable) {
-        to_schedule.remove(fn);
-        fn.computeSchedulingForward();
-      }
-    } 
+  	Set<FunctionNode> schedulable=new HashSet<FunctionNode>();
+
+  	while (!to_schedule.isEmpty()) {
+  		// Compute schedulable nodes
+  		schedulable.clear();
+  		for(FunctionNode fn:to_schedule) {
+  			boolean ok=true;
+  			for(DataEdge de:fn.inputEdgeList) { 
+  				if (!de.getSourceData().getCodegenDataPattern().isScheduled()) {
+  					ok=false;
+  					break;
+  				}
+  			}
+  			if (ok) {
+  				schedulable.add(fn);
+  			}
+  		}
+
+  		// Schedule schedulable nodes
+  		for(FunctionNode fn:schedulable) {
+  			to_schedule.remove(fn);
+  			fn.computeSchedulingForward();
+  		}
+  	} 
   }
-  
+
   // Take scheduling infos to compute buffer requirements
   public void computeBufferSlots() {
-    for(KernelData kd:getComputationalDataList()) {
-      kd.computeBufferSlots();
-    }
+  	for(KernelData kd:getComputationalDataList()) {
+  		kd.computeBufferSlots();
+  	}
   }
- 
-  
+
+
   //==================================================================
   // Verbose
   //==================================================================
 
 
   public void generateTilingReport() {
-    CompilerError.GLOBAL.raiseMessage("** kernel '"+getName()+"'");
-    for(KernelData kd:getComputationalDataList()) {
-      CompilerError.GLOBAL.raiseMessage("  - Node "+kd.getName()+" :");
-      CompilerError.GLOBAL.raiseMessage("     TileGrain = "+kd.getTileGrainForGraph());
-      CompilerError.GLOBAL.raiseMessage("     ExecutionRate = "+kd.getTileExecutionRateForGraph());
-      CompilerError.GLOBAL.raiseMessage("     NbhForSuccessor (TileGrain) = "+kd.getTileNbhForSuccessors());
-    }
+  	CompilerError.GLOBAL.raiseMessage("** kernel '"+getName()+"'");
+  	for(KernelData kd:getComputationalDataList()) {
+  		CompilerError.GLOBAL.raiseMessage("  - Node "+kd.getName()+" :");
+  		CompilerError.GLOBAL.raiseMessage("     TileGrain = "+kd.getTileGrainForGraph());
+  		CompilerError.GLOBAL.raiseMessage("     ExecutionRate = "+kd.getTileExecutionRateForGraph());
+  		CompilerError.GLOBAL.raiseMessage("     NbhForSuccessor (TileGrain) = "+kd.getTileNbhForSuccessors());
+  	}
   }
 
   public void generateReportImageMode(PrintStream ps) {
-    ps.print("Local memory usage for kernel '");
-    ps.print(getName());
-    ps.println("'");
-    int total_size=0;
-    for(KernelData kd:getComputationalDataList()) {
-      ps.print("  ");
-      ps.print(kd.getName());
-      ps.print(": ");
-      int size=kd.computeMaxLocalBufferSize();
-      if (size<0) {
-        ps.print("max is infinite");
-      }
-      else {
-        ps.print("max = ");
-        ps.print(((float)size)/1024);
-        ps.print(" KB");
-      }
-      ps.print(" [ ");
-      CLGenKernelData.generateLocalBufferSizeFormula(kd, ps);
-      ps.println(" ]");
-      if (size<0) {
-        total_size=-1;
-      }
-      else {
-        if (total_size>=0) {
-          total_size+=size;
-        }
-      }
-    }
-    ps.print("  ");
-    ps.print("TOTAL: ");
-    if (total_size<0) {
-      ps.print("max is infinite");
-    }
-    else {
-      ps.print("max = ");
-      ps.print(((float)total_size)/1024);
-      ps.print(" KB");
-    }   
-    ps.println();
+  	ps.print("Local memory usage for kernel '");
+  	ps.print(getName());
+  	ps.println("'");
+  	int total_size=0;
+  	for(KernelData kd:getComputationalDataList()) {
+  		ps.print("  ");
+  		ps.print(kd.getName());
+  		ps.print(": ");
+  		int size=kd.computeMaxLocalBufferSize();
+  		if (size<0) {
+  			ps.print("max is infinite");
+  		}
+  		else {
+  			ps.print("max = ");
+  			ps.print(((float)size)/1024);
+  			ps.print(" KB");
+  		}
+  		ps.print(" [ ");
+  		CLGenKernelData.generateLocalBufferSizeFormula(kd, ps);
+  		ps.println(" ]");
+  		if (size<0) {
+  			total_size=-1;
+  		}
+  		else {
+  			if (total_size>=0) {
+  				total_size+=size;
+  			}
+  		}
+  	}
+  	ps.print("  ");
+  	ps.print("TOTAL: ");
+  	if (total_size<0) {
+  		ps.print("max is infinite");
+  	}
+  	else {
+  		ps.print("max = ");
+  		ps.print(((float)total_size)/1024);
+  		ps.print(" KB");
+  	}   
+  	ps.println();
   } 
 
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append("Kernel '").append(getName()).append("' :\n");
+  	StringBuffer sb = new StringBuffer();
+  	sb.append("Kernel '").append(getName()).append("' :\n");
 
-    // Inputs
-    sb.append("  Control input parameters:\n");
-    for (KernelData kd:getControlParameterList()) {
-      sb.append("   -").append(kd.toString()).append("\n");
-    }
-    sb.append("\n");
-    sb.append("  Computational input parameters:\n");
-    for (KernelData kd:getComputationalInputList()) {
-      sb.append("   -").append(kd.toString()).append("\n");
-    }
-    sb.append("\n");
-    sb.append("  Algo generated data:\n");
-    for (FunctionNode a:getFunctionNodeList()) {
-      sb.append("   -").append(a.toString()).append("\n");
-    }
-    if (getNbOutputs()==1) {
-      sb.append("  Output = ");
-    }
-    else {
-      sb.append("  Outputs = ");
-    }
-    int i=0;
-    for (KernelData kd:getComputationalOutputList()) {
-      if (i++ != 0) sb.append(", ");
-      sb.append(kd.getName());
-      if (kd.isKernelInputData()) {
-        sb.append(" (kernel param)");
-      }
-      else {
-        sb.append(" (algo)");
-      }
-    }
+  	// Inputs
+  	sb.append("  Control input parameters:\n");
+  	for (KernelData kd:getControlParameterList()) {
+  		sb.append("   -").append(kd.toString()).append("\n");
+  	}
+  	sb.append("\n");
+  	sb.append("  Computational input parameters:\n");
+  	for (KernelData kd:getComputationalInputList()) {
+  		sb.append("   -").append(kd.toString()).append("\n");
+  	}
+  	sb.append("\n");
+  	sb.append("  Algo generated data:\n");
+  	for (FunctionNode a:getFunctionNodeList()) {
+  		sb.append("   -").append(a.toString()).append("\n");
+  	}
+  	if (getNbOutputs()==1) {
+  		sb.append("  Output = ");
+  	}
+  	else {
+  		sb.append("  Outputs = ");
+  	}
+  	int i=0;
+  	for (KernelData kd:getComputationalOutputList()) {
+  		if (i++ != 0) sb.append(", ");
+  		sb.append(kd.getName());
+  		if (kd.isKernelInputData()) {
+  			sb.append(" (kernel param)");
+  		}
+  		else {
+  			sb.append(" (algo)");
+  		}
+  	}
 
-    return sb.toString();
+  	return sb.toString();
   }
 
   public List<KernelData> getParameterList() {
-    return parameterList;
+  	return parameterList;
   }
 
   public List<KernelData> getControlParameterList() {
-    return controlParameterList;
+  	return controlParameterList;
   }
 
   public List<KernelData> getComputationalDataList() {
-    return computationalDataList;
+  	return computationalDataList;
   }
 
   public List<KernelData> getComputationalInputList() {
-    return computationalInputList;
+  	return computationalInputList;
   }
 
   public List<FunctionNode> getFunctionNodeList() {
-    return functionNodeList;
+  	return functionNodeList;
   }
 
   public List<KernelData> getComputationalOutputList() {
-    return computationalOutputList;
+  	return computationalOutputList;
   }
 
 }

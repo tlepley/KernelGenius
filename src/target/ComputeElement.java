@@ -31,8 +31,8 @@ public class ComputeElement extends GenericDevice {
   enum TYPE_SUPPORT {INIT, NO, SOFT, NATIVE};
   
   // Memory & connectivity
-  boolean dataCache=false;
-  long    memorySize=0;
+	long    privateCacheSize=0;
+	long    privateMemorySize=0;
   boolean dataConnectivityToExtDMA=false;
   boolean dataConnectivityToExtLDST=false;
   boolean dataConnectivityToLateralDMA=false;
@@ -62,12 +62,6 @@ public class ComputeElement extends GenericDevice {
         raiseRedefinePropertyError(prop,ce);
       }
       swThreads=true;
-    }
-    else if (prop.equals("dataCache")) {
-      if (dataCache) {
-        raiseRedefinePropertyError(prop,ce);
-      }
-      dataCache=true;
     }
     else {
       raiseUnknownPropertyError(prop,ce);
@@ -162,9 +156,17 @@ public class ComputeElement extends GenericDevice {
         raiseMessagePropertyError(prop," must be strictly positive",ce);
       }
       else {
-        memorySize=i;
+        privateMemorySize=i;
       } 
     }
+		else if (prop.equals("cacheSize")) {
+			if (i<=0) {
+				ce.raiseError("cacheSize must be strictly positive");
+			}
+			else {
+				privateCacheSize=i;
+			} 
+		}    
     else if (prop.equals("nbHwThreads")) {
       if (nbHwThreads>0) {
         raiseRedefinePropertyError(prop,ce);
@@ -220,12 +222,18 @@ public class ComputeElement extends GenericDevice {
   // Getters
   //================================================================== 
   
-  public boolean isMemory() {
-    return memorySize>=0;
-  }
-  public long getMemorySize() {
-    return memorySize;
-  }
+	public boolean hasprivateCache() {
+		return privateCacheSize>=0;
+	}
+	public long getPrivateCacheSize() {
+		return privateCacheSize;
+	}
+	public boolean hasPrivateMemory() {
+		return privateMemorySize>=0;
+	}
+	public long getPrivateMemorySize() {
+		return privateMemorySize;
+	}
   public boolean isExtDMAConnectivity() {
     return dataConnectivityToExtDMA;
   }
@@ -240,9 +248,6 @@ public class ComputeElement extends GenericDevice {
   }
   public boolean isLateralLoadStoreConnectivity() {
     return dataConnectivityToLateralLDST;
-  }
-  public boolean isDataCache() {
-    return dataCache;
   }
   
   public int getNbHwThreads() {
@@ -271,9 +276,15 @@ public class ComputeElement extends GenericDevice {
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("Compute element '").append(getName()).append("': ");
-    // memory
-    if (isMemory()) {
-      sb.append("private memory = ").append(Long.toString(memorySize)).append(" bytes");
+    // Cache/memory
+		if (hasprivateCache()) {
+			sb.append(", local cache = ").append(Long.toString(privateCacheSize)).append(" bytes");
+		}
+		else {
+			sb.append(", no local cache");
+		}
+    if (hasPrivateMemory()) {
+      sb.append("private memory = ").append(Long.toString(privateMemorySize)).append(" bytes");
     }
     else {
       sb.append("no local memory");
@@ -290,7 +301,7 @@ public class ComputeElement extends GenericDevice {
     else {
       sb.append(", no Lateral connectivity");
     }
-    if (isDataCache()) {sb.append(", data cache");}
+    if (hasprivateCache()) {sb.append(", data cache");}
     else {sb.append(", no data cache");}
     sb.append(", ").append(Integer.toString(nbHwThreads)).append(" hw threads");
     if (hasSwThreads()) {sb.append(", sw threads");}

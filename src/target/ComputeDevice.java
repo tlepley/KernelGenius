@@ -28,11 +28,15 @@ import ir.literals.Literal;
 import common.CompilerError;
 
 public class ComputeDevice extends GenericDevice {  
-  long  memorySize=0;
-  ComputeUnit computeUnit=null;
-  ComputeElement computeElement=null;
+  long deviceLevelCacheSize=0;
+  long deviceLevelMemorySize=0;
   int nbComputeUnits = 0;
 
+  // Assumes an homogeneous device
+  ComputeUnit computeUnit=null;
+  ComputeElement computeElement=null;
+
+  
   //==================================================================
   // Building
   //==================================================================
@@ -84,9 +88,17 @@ public class ComputeDevice extends GenericDevice {
         ce.raiseError("memorySize must be strictly positive");
       }
       else {
-        memorySize=i;
+        deviceLevelMemorySize=i;
       } 
     }
+    else if (prop.equals("cacheSize")) {
+        if (i<=0) {
+          ce.raiseError("cacheSize must be strictly positive");
+        }
+        else {
+          deviceLevelCacheSize=i;
+        } 
+      }
     else {
       raiseUnknownIntegerPropertyError(prop,ce);
     }
@@ -117,11 +129,23 @@ public class ComputeDevice extends GenericDevice {
   // Getters
   //==================================================================
  
-  public boolean isMemory() {
-    return memorySize>=0;
+	public boolean hasDeviceLevelCache() {
+		return deviceLevelCacheSize>=0;
+	}
+	public long getDeviceLevelCacheSize() {
+		return deviceLevelCacheSize;
+	}
+  public boolean hasDeviceLevelMemory() {
+    return deviceLevelMemorySize>=0;
   }
-  public long getMemorySize() {
-    return memorySize;
+  public long getDeviceLevelMemorySize() {
+    return deviceLevelMemorySize;
+  }
+  public boolean hasUnitLevelMemory() {
+    return computeUnit.hasLocalMemory();
+  }
+  public long getUnitLevelMemorySize() {
+    return computeUnit.getLocalMemorySize();
   }
   public ComputeUnit getComputeUnit() {
     return computeUnit;
@@ -145,14 +169,20 @@ public class ComputeDevice extends GenericDevice {
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("Device '").append(getName()).append("': ");
-    sb.append("nbComputeUnits=").append(Integer.toString(nbComputeUnits));
-    // memory
-    if (isMemory()) {
-      sb.append(", local memory = ").append(Long.toString(memorySize)).append(" bytes");
+    // Cache/memory
+    if (hasDeviceLevelCache()) {
+      sb.append(", device level cache = ").append(Long.toString(deviceLevelCacheSize)).append(" bytes");
     }
     else {
-      sb.append(", no local memory");
+      sb.append(", no device level cache");
     }
+    if (hasDeviceLevelMemory()) {
+      sb.append(", device level memory = ").append(Long.toString(deviceLevelMemorySize)).append(" bytes");
+    }
+    else {
+      sb.append(", no device level memory");
+    }
+    sb.append("nbComputeUnits=").append(Integer.toString(nbComputeUnits));
     sb.append(", computeUnit '").append(computeUnit.getName()).append("'");
     sb.append(", computeElement '").append(computeElement.getName()).append("'");
     sb.append("\n");
