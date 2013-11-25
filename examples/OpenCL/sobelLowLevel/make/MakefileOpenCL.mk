@@ -51,13 +51,13 @@ DEVICE_TYPE=cpu_intel
 include $(MAKE_DIR)/cpu_intel.mk
 endif
 
-
 # Check target configuration and user options
 ifndef CLCOMPILER
 ifndef ONLINE_CL_COMPILATION
 $(error offline CL compilation not supported, please set 'ONLINE_CL_COMPILATION=1')
 endif
 endif
+
 
 ##########################################################
 # Kernels configuration
@@ -74,7 +74,7 @@ KERNELS_SRCSBIN := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 ##########################################################
 
 # Compilation options
-HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir)) -I. -I..
+HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir))
 HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS)
 ifdef P2012_FABRIC
 # 32 bit version for STHORM
@@ -94,7 +94,7 @@ OBJS := $(patsubst %.cpp,$(PLT_BUILD_DIR)/gen/%.o,$(patsubst %.c,$(PLT_BUILD_DIR
 # Compilation rules
 ##########################################################
 
-VPATH = $(SRC_DIR) .
+VPATH = $(SRC_DIR)
 
 # Final executables
 EXEC := $(PLT_BUILD_DIR)/test_$(APP_NAME)

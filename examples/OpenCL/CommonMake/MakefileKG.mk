@@ -99,10 +99,5 @@ build:: $(KG_BUILD_DIR)/$(PROGRAM_NAME).c
 
 else
 # Include the generic kernel test makefile
-TEST_DIR= $(KERNELGENIUS_DIR)/test
-MAKE_DIR= $(TEST_DIR)/make
-
-include $(MAKE_DIR)/common_opencl.mk
+include $(MAKE_DIR)/MakefileOpenCL.mk
 endif
-
-

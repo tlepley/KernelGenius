@@ -20,7 +20,7 @@
 ##################################################################
 
 ##################################################################
-#   Common KernelGenius test makefile for the OpenCL STHORM target
+#   Common KernelGenius test makefile for the OpenCL target
 ##################################################################
 
 
@@ -68,20 +68,20 @@ DEVICE_TYPE=cpu_intel
 include $(MAKE_DIR)/cpu_intel.mk
 endif
 
-
 # Check target configuration and user options
 ifndef CLCOMPILER
 ifndef ONLINE_CL_COMPILATION
-$(error offline CL compilation not supported)
+$(error offline CL compilation not supported, please set 'ONLINE_CL_COMPILATION=1')
 endif
 endif
+
 
 ##########################################################
 # Kernels configuration
 ##########################################################
 
 # Find all kernels
-KERNELS_SRCS  := $(PROGRAM_NAME).cl
+KERNELS_SRCS  := $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl
 KERNELS_BIN   := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).so
 KERNELS_SRCSBIN := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 
@@ -91,7 +91,7 @@ KERNELS_SRCSBIN := $(PLT_BUILD_DIR)/$(PROGRAM_NAME).cl
 ##########################################################
 
 # Compilation options
-HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir)) -I. -I..
+HOST_CFLAGS += -Wall $(OPENCL_CFLAGS) $(foreach sdir,$(SRC_DIR),-I$(sdir))
 HOST_LDFLAGS += -Wall $(OPENCL_LDFLAGS)
 ifdef P2012_FABRIC
 # 32 bit version for STHORM
@@ -111,7 +111,7 @@ OBJS := $(patsubst %.cpp,$(PLT_BUILD_DIR)/gen/%.o,$(patsubst %.c,$(PLT_BUILD_DIR
 # Compilation rules
 ##########################################################
 
-VPATH = $(SRC_DIR) .
+VPATH = $(SRC_DIR)
 
 # Final executables
 EXEC := $(PLT_BUILD_DIR)/test_$(APP_NAME)
@@ -133,11 +133,7 @@ build:: $(EXEC)
 .PHONY: all build clean test package run
 .SUFFIXES: .so .cl .o
 
-$(PROGRAM_NAME).cl $(PROGRAM_NAME).c $(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
-	echo "--- Compiling KernelGenius file $<"
-	$(KG_COMPILATION_CMD) $<
-
-$(PLT_BUILD_DIR)/%.so: %.cl
+$(PLT_BUILD_DIR)/%.so: $(KG_BUILD_DIR)/%.cl
 	@echo "--- Compiling OpenCL kernels in $<"
 	mkdir -p $(PLT_BUILD_DIR)
 ifeq ($(DEVICE_TYPE),cpu_intel)
@@ -146,15 +142,20 @@ else
 	$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_OUT) $@ $(CLCOMPILER_IN) $<
 endif
 
-$(PLT_BUILD_DIR)/%.cl: %.cl
+$(PLT_BUILD_DIR)/%.cl: $(KG_BUILD_DIR)/%.cl
 	@echo "--- Copying OpenCL kernels in $<"
 	mkdir -p $(PLT_BUILD_DIR)
 	cp $< $@
 	
+$(PLT_BUILD_DIR)/gen/%.o: $(KG_BUILD_DIR)/%.c
+	@echo "--- Compiling '$<'"
+	mkdir -p $(PLT_BUILD_DIR)/gen
+	$(HOST_CC) $(HOST_CFLAGS) -I$(KG_BUILD_DIR) -I$(RUNTIME_DIR)/include -c $< -o $@
+
 $(PLT_BUILD_DIR)/gen/%.o: %.c
 	@echo "--- Compiling '$<'"
 	mkdir -p $(PLT_BUILD_DIR)/gen
-	$(HOST_CC) $(HOST_CFLAGS) -I$(RUNTIME_DIR)/include -c $< -o $@
+	$(HOST_CC) $(HOST_CFLAGS) -I$(KG_BUILD_DIR) -I$(RUNTIME_DIR)/include -c $< -o $@
 	
 $(EXEC): $(OBJS)
 	@echo "--- Linking $@"	
@@ -191,8 +192,9 @@ run: build
 clean::
 	rm -f $(EXEC)
 	rm -f $(OBJS)
-	rm -rf $(PLT_BUILD_DIR)
-	rm -rf $(PROGRAM_NAME).c $(PROGRAM_NAME).cl $(PROGRAM_NAME).h
 	rm -f $(KERNELS_BIN)
 	rm -f $(KERNELS_SRCSBIN)
+
+cleanall::
+	rm -rf build_*
 

@@ -37,86 +37,8 @@ PROGRAM_NAME = Gradient
 RUN_ARGS = -x $(SIZE_X) -y $(SIZE_Y) -wi $(WI) -wg0 $(WG0) -wg1 $(WG1)
 KGFLAGS = --report
 
-
 #=============================================================================
-# Variables
+# Compilation
 #=============================================================================
-
-# Source directory
-SRC_DIR ?= src
-
-# Flags for KernelGenius
-ifndef KGCOMPILER 
-KGCOMPILER = kgenc 
-KG_TARGET_DEVICE = cpu
-endif
-
-KGFLAGS ?=
-KG_OPT ?=
-
-# KernelGenius compilation
-ifdef KG_TARGET_LANGUAGE
-KGFLAGS += --target_language $(KG_TARGET_LANGUAGE)
-endif
-
-ifdef KG_TARGET_DEVICE
-KGFLAGS += --target_device $(KG_TARGET_DEVICE)
-endif
-
-ifdef ASYNC_MERGE
-KGFLAGS += --async
-endif
-
-
-#=============================================================================
-# Compilation rules
-#=============================================================================
-
-VPATH = $(SRC_DIR)
-
-KG_BUILD_DIR = $(CURDIR)/build_kg
-KG_SOURCE_FILE = $(KG_SOURCE).kg
-KG_COMPILATION_CMD = $(KGCOMPILER) --outdir $(KG_BUILD_DIR) $(KGFLAGS) $(KG_OPT) -o $(PROGRAM_NAME)
-
-all:: build
-
-# Implicit rules
-.SUFFIXES: .kg .cl .c .h
-
-$(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
-$(KG_BUILD_DIR)/$(PROGRAM_NAME).c \
-$(KG_BUILD_DIR)/$(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
-	echo "--- Compiling KernelGenius file $<"
-	$(KG_COMPILATION_CMD) $<
-
-
-#=============================================================================
-# Cleaning
-#=============================================================================
-
-clean::
-	rm -rf $(KG_BUILD_DIR)/$(PROGRAM_NAME).c  \
-	       $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
-	       $(KG_BUILD_DIR)/$(PROGRAM_NAME).h
-
-cleanall::
-	rm -rf $(KG_BUILD_DIR)
-
-
-#=============================================================================
-# Backend makefile
-#=============================================================================
-
 MAKE_DIR=make
-
-ifdef NO_OCL_COMPILATION
-
-# Just KG compilation
-all:: build
-
-build:: $(KG_BUILD_DIR)/$(PROGRAM_NAME).c
-
-else
-# Include the generic kernel test makefile
-include $(MAKE_DIR)/MakefileOpenCL.mk
-endif
+include $(MAKE_DIR)/MakefileKG.mk
