@@ -20,6 +20,12 @@
 ##################################################################
 
 
+PREFIX=@
+ifdef VERBOSE
+PREFIX=
+endif
+
+
 ##########################################################
 # Directories
 ##########################################################
@@ -113,37 +119,37 @@ endif
 build:: $(EXEC)
 
 # Implicit rules
-.PHONY: all build clean test package run
+.PHONY: all build run debug clean cleanall
 .SUFFIXES: .so .cl .o
 
 $(PLT_BUILD_DIR)/%.so: $(KG_BUILD_DIR)/%.cl
-	@echo "--- Compiling OpenCL kernels in $<"
-	mkdir -p $(PLT_BUILD_DIR)
+	@echo "--- Compiling OpenCL kernels '$<' to '$@'"
+	@mkdir -p $(PLT_BUILD_DIR)
 ifeq ($(DEVICE_TYPE),cpu_intel)
-	$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_IN)$< $(CLCOMPILER_OUT)$@
+	$(PREFIX)$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_IN)$< $(CLCOMPILER_OUT)$@
 else
-	$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_OUT) $@ $(CLCOMPILER_IN) $<
+	$(PREFIX)$(CLCOMPILER) $(CLCFLAGS) $(CLCOMPILER_OUT) $@ $(CLCOMPILER_IN) $<
 endif
 
 $(PLT_BUILD_DIR)/%.cl: $(KG_BUILD_DIR)/%.cl
-	@echo "--- Copying OpenCL kernels in $<"
-	mkdir -p $(PLT_BUILD_DIR)
-	cp $< $@
+	@echo "--- Copying OpenCL kernels '$<' to '$@'"
+	@mkdir -p $(PLT_BUILD_DIR)
+	$(PREFIX)cp $< $@
 
 $(PLT_BUILD_DIR)/gen/%.o: $(KG_BUILD_DIR)/%.c
-	@echo "--- Compiling '$<'"
-	mkdir -p $(PLT_BUILD_DIR)/gen
-	$(HOST_CC) $(HOST_CFLAGS) -I$(KG_BUILD_DIR) -I$(RUNTIME_DIR)/include -c $< -o $@
+	@echo "--- Compiling '$<' to '$@'"
+	@mkdir -p $(PLT_BUILD_DIR)/gen
+	$(PREFIX)$(HOST_CC) $(HOST_CFLAGS) -I$(KG_BUILD_DIR) -I$(RUNTIME_DIR)/include -c $< -o $@
 
 $(PLT_BUILD_DIR)/gen/%.o: %.c
-	@echo "--- Compiling '$<'"
-	mkdir -p $(PLT_BUILD_DIR)/gen
-	$(HOST_CC) $(HOST_CFLAGS) -I$(KG_BUILD_DIR) -I$(RUNTIME_DIR)/include -c $< -o $@
+	@echo "--- Compiling '$<' to '$@'"
+	@mkdir -p $(PLT_BUILD_DIR)/gen
+	$(PREFIX)$(HOST_CC) $(HOST_CFLAGS) -I$(KG_BUILD_DIR) -I$(RUNTIME_DIR)/include -c $< -o $@
 
 
 $(EXEC): $(OBJS)
 	@echo "--- Linking $@"	
-	$(HOST_CC) $(HOST_CFLAGS) $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
+	$(PREFIX)$(HOST_CC) $(HOST_CFLAGS) $(RUNPTH) $^ -o $@ $(HOST_LDFLAGS)
 
 
 ##########################################################
@@ -163,10 +169,12 @@ endif
 
 
 debug: build
-	$(CMD_EXEC_DEBUG)
+	@echo "--- executes $(EXEC) in debug mode"
+	$(PREFIX)$(CMD_EXEC_DEBUG)
 
 run: build
-	$(CMD_EXEC)
+	@echo "--- executes $(EXEC)"
+	$(PREFIX)$(CMD_EXEC)
 
 
 ##########################################################
@@ -174,11 +182,11 @@ run: build
 ##########################################################
 
 clean::
-	rm -f $(EXEC)
-	rm -f $(OBJS)
-	rm -f $(KERNELS_BIN)
-	rm -f $(KERNELS_SRCSBIN)
+	@rm -f $(EXEC)
+	@rm -f $(OBJS)
+	@rm -f $(KERNELS_BIN)
+	@rm -f $(KERNELS_SRCSBIN)
 
 cleanall::
-	rm -rf build_*
+	@rm -rf build_*
 

@@ -19,6 +19,10 @@
 #  Boston, MA 02110-1301 USA.
 ##################################################################
 
+PREFIX=@
+ifdef VERBOSE
+PREFIX=
+endif
 
 ##########################################################
 # The following variables can be redefined in the parent 
@@ -59,20 +63,22 @@ endif
 # Compilation rules
 #=============================================================================
 
-KG_BUILD_DIR = $(CURDIR)/build_kg
+KG_BUILD_DIR = build_kg
 KG_SOURCE_FILE = $(KG_SOURCE).kg
 KG_COMPILATION_CMD = $(KGCOMPILER) --outdir $(KG_BUILD_DIR) $(KGFLAGS) $(KG_OPT) -o $(PROGRAM_NAME)
 
-VPATH = $(SRC_DIR) .
-.SUFFIXES: .kg .cl .c .h
+.PHONY: all build build-kg clean cleanall
+VPATH = $(SRC_DIR)
 
 all:: build
+
+build-kg: $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl
 
 $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
 $(KG_BUILD_DIR)/$(PROGRAM_NAME).c \
 $(KG_BUILD_DIR)/$(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
-	echo "--- Compiling KernelGenius file $<"
-	$(KG_COMPILATION_CMD) $<
+	@echo "--- Compiling KernelGenius file $<"
+	$(PREFIX)$(KG_COMPILATION_CMD) $<
 
 
 #=============================================================================
@@ -80,12 +86,12 @@ $(KG_BUILD_DIR)/$(PROGRAM_NAME).h : $(KG_SOURCE_FILE)
 #=============================================================================
 
 clean::
-	rm -rf $(KG_BUILD_DIR)/$(PROGRAM_NAME).c  \
-	       $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
-	       $(KG_BUILD_DIR)/$(PROGRAM_NAME).h
+	@rm -rf $(KG_BUILD_DIR)/$(PROGRAM_NAME).c  \
+	        $(KG_BUILD_DIR)/$(PROGRAM_NAME).cl \
+	        $(KG_BUILD_DIR)/$(PROGRAM_NAME).h
 
 cleanall::
-	rm -rf $(KG_BUILD_DIR)
+	@rm -rf $(KG_BUILD_DIR)
 
 
 #=============================================================================
@@ -95,7 +101,7 @@ cleanall::
 ifdef NO_OCL_COMPILATION
 
 # Just KG compilation
-build:: $(KG_BUILD_DIR)/$(PROGRAM_NAME).c
+build:: build-kg
 
 else
 # Include the generic kernel test makefile
