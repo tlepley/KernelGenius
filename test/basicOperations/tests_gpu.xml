@@ -5,49 +5,49 @@
 
   <test name="AbsDiff">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 DEVICE_TYPE=gpu_nvidia clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationAbsDiff.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 DEVICE_TYPE=gpu_nvidia clean run</command>
     </config>
   </test>
 
   <test name="Add">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationAdd.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="EuclideanNorm">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationEuclideanNorm.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
  </test>
 
   <test name="Min">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationMin.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Max">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationMax.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationMax.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Mult">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationMult.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Sub">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f OperationSub.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 
   <test name="Sobel Multiple Kernels">
     <config name="posix">
-      <command name="exec">make KGCOMPILER=sthormkg ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
+      <command name="exec">make KGCOMPILER=kg2ocl ONLINE_CL_COMPILATION=1 DEVICE_TYPE=gpu_nvidia -f SobelSplit.mk WG0=31 WG1=17 SIZE_X=331 SIZE_Y=257 clean run</command>
     </config>
   </test>
 

@@ -3,7 +3,7 @@
 
   <test name="downsampling">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C downsampling clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C downsampling clean run</command>
     </config>
     <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C downsampling clean run</command>
@@ -15,7 +15,7 @@
 
   <test name="gradient">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C gradient clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C gradient clean run</command>
     </config>
      <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C gradient clean run</command>
@@ -27,7 +27,7 @@
 
   <test name="imageDifference">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C imageDifference clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C imageDifference clean run</command>
     </config>
      <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C imageDifference clean run</command>
@@ -39,7 +39,7 @@
  
   <test name="separableConvolution">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C separableConvolution clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C separableConvolution clean run</command>
     </config>
     <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C separableConvolution clean run</command>
@@ -51,7 +51,7 @@
 
   <test name="sobel">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C sobel clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C sobel clean run</command>
     </config>
     <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C sobel clean run</command>
@@ -63,7 +63,7 @@
 
   <test name="sobelLowLevel">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C sobelLowLevel clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C sobelLowLevel clean run</command>
     </config>
     <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C sobelLowLevel clean run</command>
@@ -75,7 +75,7 @@
 
   <test name="threshold">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C threshold clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C threshold clean run</command>
     </config>
     <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C threshold clean run</command>
@@ -87,7 +87,7 @@
 
   <test name="upsampling">
     <config name="posix">
-      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=sthormkg -C upsampling clean run</command>
+      <command name="exec">clCheck 30 make DEVICE_TYPE=sthorm KGCOMPILER=kg2ocl -C upsampling clean run</command>
     </config>
     <config name="xp70">
       <command name="exec">clCheck 500 make DEVICE_TYPE=sthorm FABRIC_TYPE=xp70 -C upsampling clean run</command>

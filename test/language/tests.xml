@@ -3,19 +3,19 @@
 
   <test name="struct)">
     <config name="posix">
-      <command name="exec">clCheck 30 make NO_OCL_COMPILATION=1 KGCOMPILER=sthormkg -f struct.mk clean build</command>
+      <command name="exec">clCheck 30 make NO_OCL_COMPILATION=1 KGCOMPILER=kg2ocl -f struct.mk clean build</command>
     </config>
   </test>
 
   <test name="enum">
     <config name="posix">
-      <command name="exec">clCheck 30 make NO_OCL_COMPILATION=1 KGCOMPILER=sthormkg -f enum.mk clean build</command>
+      <command name="exec">clCheck 30 make NO_OCL_COMPILATION=1 KGCOMPILER=kg2ocl -f enum.mk clean build</command>
     </config>
   </test>
 
   <test name="enum">
     <config name="posix">
-      <command name="exec">clCheck 30 make NO_OCL_COMPILATION=1 KGCOMPILER=sthormkg -f typedef.mk clean build</command>
+      <command name="exec">clCheck 30 make NO_OCL_COMPILATION=1 KGCOMPILER=kg2ocl -f typedef.mk clean build</command>
     </config>
   </test>
 
